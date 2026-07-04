@@ -10,6 +10,10 @@
 .
 @endif
 
+@if($invoice->company->payment_link)
+{{ __('Pay online') }}: {{ $invoice->company->payment_link }}
+
+@endif
 {{ __('Thanks,') }}<br>
 {{ $invoice->company->name }}
 </x-mail::message>

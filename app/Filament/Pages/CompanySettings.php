@@ -56,6 +56,19 @@ class CompanySettings extends EditTenantProfile
                         TextInput::make('postcode'),
                         TextInput::make('country_code')->maxLength(2),
                     ]),
+                Section::make('Getting paid')
+                    ->description('Shown on unpaid invoice PDFs and emails so customers can pay you directly.')
+                    ->columns(1)
+                    ->schema([
+                        \Filament\Forms\Components\Textarea::make('duitnow_qr_payload')
+                            ->label('DuitNow QR payload')
+                            ->helperText('The QR text string from your bank\'s DuitNow QR merchant enrolment. We render it as a scannable QR on invoices.')
+                            ->rows(3),
+                        TextInput::make('payment_link')
+                            ->label('Online payment link')
+                            ->url()
+                            ->helperText('Optional — a Billplz / toyyibPay / Stripe payment link.'),
+                    ]),
                 Section::make('LHDN e-Invoice')
                     ->description('Businesses under RM1,000,000 annual turnover are currently exempt (Dec 2025 LHDN decision — verify against the current timeline). Enable when you cross the threshold or want to pilot.')
                     ->columns(2)

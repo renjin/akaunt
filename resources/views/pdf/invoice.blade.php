@@ -102,6 +102,25 @@
     <div>{{ $invoice->notes }}</div>
 @endif
 
+@php($showPay = ! $invoice->isCreditNote() && (float) $invoice->balance_due > 0 && ($company->duitnow_qr_payload || $company->payment_link))
+@if($showPay)
+    <br><br>
+    <table class="meta">
+        <tr>
+            <td>
+                <div class="badge">{{ __('How to pay') }}</div>
+                @if($company->duitnow_qr_payload)<div class="muted">{{ __('Scan the DuitNow QR with any Malaysian banking app') }}</div>@endif
+                @if($company->payment_link)<div>{{ __('Pay online') }}: {{ $company->payment_link }}</div>@endif
+            </td>
+            @if($company->duitnow_qr_payload)
+                <td style="text-align:right">
+                    <img src="{{ App\Services\DuitnowQr::dataUri($company->duitnow_qr_payload) }}" width="90" height="90" alt="DuitNow QR">
+                </td>
+            @endif
+        </tr>
+    </table>
+@endif
+
 @php($submission = $invoice->einvoice_status === 'validated' ? $invoice->submission : null)
 @if($submission)
     <br><br>
