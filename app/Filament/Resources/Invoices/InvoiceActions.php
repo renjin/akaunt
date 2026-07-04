@@ -30,12 +30,38 @@ class InvoiceActions
             self::recordPayment(),
             self::sendEmail(),
             self::downloadPdf(),
+            self::createPaymentLink(),
             self::createCreditNote(),
             self::queueEinvoice(),
             self::submitEinvoice(),
             self::cancelEinvoice(),
             self::void(),
         ];
+    }
+
+    public static function createPaymentLink(): Action
+    {
+        return Action::make('createPaymentLink')
+            ->label('Create payment link')
+            ->icon('heroicon-o-link')
+            ->visible(fn (Invoice $record) => $record->isPosted()
+                && ! $record->isCreditNote()
+                && (float) $record->balance_due > 0
+                && $record->company->hitpayConfigured()
+                && blank($record->payment_url))
+            ->requiresConfirmation()
+            ->modalDescription(fn (Invoice $record) => "Creates a HitPay checkout for {$record->currency} {$record->balance_due}. The link goes on the PDF and email; payment records automatically when the customer pays.")
+            ->action(function (Invoice $record) {
+                try {
+                    app(\App\Services\HitPay\HitPayService::class)->createCheckout($record);
+                    Notification::make()->success()
+                        ->title('Payment link created.')
+                        ->body($record->refresh()->payment_url)
+                        ->send();
+                } catch (\Throwable $e) {
+                    Notification::make()->danger()->title($e->getMessage())->send();
+                }
+            });
     }
 
     public static function createCreditNote(): Action

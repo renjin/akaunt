@@ -15,7 +15,14 @@ class Company extends Model
         return [
             'einvoice_enabled' => 'boolean',
             'einvoice_threshold_crossed' => 'boolean',
+            'hitpay_api_key' => 'encrypted',
+            'hitpay_salt' => 'encrypted',
         ];
+    }
+
+    public function hitpayConfigured(): bool
+    {
+        return filled($this->hitpay_api_key) && filled($this->hitpay_salt);
     }
 
     public function users(): BelongsToMany

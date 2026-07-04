@@ -58,16 +58,35 @@ class CompanySettings extends EditTenantProfile
                     ]),
                 Section::make('Getting paid')
                     ->description('Shown on unpaid invoice PDFs and emails so customers can pay you directly.')
-                    ->columns(1)
+                    ->columns(2)
                     ->schema([
                         \Filament\Forms\Components\Textarea::make('duitnow_qr_payload')
                             ->label('DuitNow QR payload')
                             ->helperText('The QR text string from your bank\'s DuitNow QR merchant enrolment. We render it as a scannable QR on invoices.')
-                            ->rows(3),
+                            ->rows(3)
+                            ->columnSpanFull(),
                         TextInput::make('payment_link')
-                            ->label('Online payment link')
+                            ->label('Fallback payment link')
                             ->url()
-                            ->helperText('Optional — a Billplz / toyyibPay / Stripe payment link.'),
+                            ->helperText('Used when an invoice has no HitPay checkout link.')
+                            ->columnSpanFull(),
+                        TextInput::make('hitpay_api_key')
+                            ->label('HitPay API key')
+                            ->password()
+                            ->helperText('Per-invoice checkout links (FPX, DuitNow, cards) with automatic payment recording.'),
+                        TextInput::make('hitpay_salt')
+                            ->label('HitPay salt')
+                            ->password()
+                            ->helperText('Used to verify payment webhooks.'),
+                        Select::make('hitpay_environment')
+                            ->label('HitPay environment')
+                            ->options(['sandbox' => 'Sandbox', 'production' => 'Production'])
+                            ->default('sandbox'),
+                        Select::make('hitpay_deposit_account_id')
+                            ->label('Deposit HitPay payments to')
+                            ->options(fn () => Filament::getTenant()->accounts()
+                                ->where('subtype', 'cash_bank')->where('active', true)->orderBy('code')
+                                ->get()->mapWithKeys(fn ($a) => [$a->id => "{$a->code} · {$a->name}"])),
                     ]),
                 Section::make('LHDN e-Invoice')
                     ->description('Businesses under RM1,000,000 annual turnover are currently exempt (Dec 2025 LHDN decision — verify against the current timeline). Enable when you cross the threshold or want to pilot.')

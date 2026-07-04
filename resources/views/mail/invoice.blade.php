@@ -10,8 +10,9 @@
 .
 @endif
 
-@if($invoice->company->payment_link)
-{{ __('Pay online') }}: {{ $invoice->company->payment_link }}
+@php($payUrl = $invoice->payment_url ?: $invoice->company->payment_link)
+@if($payUrl)
+{{ __('Pay online') }}: {{ $payUrl }}
 
 @endif
 {{ __('Thanks,') }}<br>

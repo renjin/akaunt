@@ -15,3 +15,12 @@ Schedule::job(new PollEinvoiceStatusJob)->everyFifteenMinutes();
 
 // Recurring invoices only need to run once a day.
 Schedule::job(new GenerateRecurringInvoicesJob)->dailyAt('06:00');
+
+// Webhook-miss fallback: settle completed HitPay checkouts. Modest cadence — 70 req/min endpoint limit.
+Schedule::call(function () {
+    \App\Models\Company::query()
+        ->whereNotNull('hitpay_api_key')
+        ->whereHas('invoices', fn ($q) => $q->whereNotNull('hitpay_payment_request_id')
+            ->whereIn('status', ['approved', 'sent', 'partial']))
+        ->each(fn ($company) => app(\App\Services\HitPay\HitPayService::class)->pollPending($company));
+})->hourly()->name('hitpay-poll-fallback');
