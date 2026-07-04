@@ -14,7 +14,10 @@ class CreateInvoice extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['invoice_number'] = app(InvoiceService::class)->nextNumber(Filament::getTenant());
-        $data['currency'] = Filament::getTenant()->base_currency ?? 'MYR';
+        $data['currency'] = $data['currency'] ?? Filament::getTenant()->base_currency ?? 'MYR';
+        if ($data['currency'] === 'MYR') {
+            $data['fx_rate'] = 1;
+        }
 
         return $data;
     }

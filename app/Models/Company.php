@@ -63,6 +63,16 @@ class Company extends Model
         return $this->hasMany(Bill::class);
     }
 
+    public function estimates(): HasMany
+    {
+        return $this->hasMany(Estimate::class);
+    }
+
+    public function recurringInvoices(): HasMany
+    {
+        return $this->hasMany(RecurringInvoice::class);
+    }
+
     public function bankTransactions(): HasMany
     {
         return $this->hasMany(BankTransaction::class);

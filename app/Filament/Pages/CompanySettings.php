@@ -39,6 +39,12 @@ class CompanySettings extends EditTenantProfile
                         TextInput::make('msic_code')->label('MSIC code')->maxLength(5),
                         TextInput::make('email')->email(),
                         TextInput::make('phone'),
+                        Select::make('document_locale')
+                            ->label('Invoice document language')
+                            ->options(['en' => 'English', 'ms' => 'Bahasa Malaysia'])
+                            ->default('en')
+                            ->helperText('Language used for outgoing invoice PDFs and emails.')
+                            ->required(),
                     ]),
                 Section::make('Address')
                     ->columns(2)

@@ -32,6 +32,17 @@ class InvoiceForm
                             ->required(),
                         DatePicker::make('issue_date')->required()->default(today()),
                         DatePicker::make('due_date')->default(today()->addDays(30)),
+                        Select::make('currency')
+                            ->options(['MYR' => 'MYR', 'USD' => 'USD', 'SGD' => 'SGD', 'CNY' => 'CNY', 'EUR' => 'EUR'])
+                            ->default(fn () => Filament::getTenant()->base_currency ?? 'MYR')
+                            ->live()
+                            ->required(),
+                        TextInput::make('fx_rate')
+                            ->label('Exchange rate to MYR')
+                            ->numeric()
+                            ->default(1)
+                            ->visible(fn (callable $get) => $get('currency') !== 'MYR')
+                            ->required(),
                     ]),
                 Repeater::make('lines')
                     ->relationship('lines')

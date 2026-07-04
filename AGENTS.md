@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Laravel 13 accounting application using Filament for the admin UI. Core domain code lives in `app/`: models in `app/Models`, accounting and e-invoice logic in `app/Services`, jobs in `app/Jobs`, and Filament pages/resources in `app/Filament`. Routes are in `routes/`. Database schema, factories, and seeders live under `database/`. Blade, mail, and PDF templates are in `resources/views`. Frontend entrypoints are `resources/js/app.js` and `resources/css/app.css`; compiled or vendor-published assets are under `public/`. Tests are split into `tests/Feature` and `tests/Unit`.
+This is a Laravel 13 accounting app using Filament. Core code lives in `app/`: models in `app/Models`, accounting/e-invoice logic in `app/Services`, jobs in `app/Jobs`, and Filament pages/resources in `app/Filament`. Routes are in `routes/`. Database schema, factories, and seeders live under `database/`. Blade, mail, and PDF templates are in `resources/views`. The Filament theme is `resources/css/filament/admin/theme.css`. Tests are split into `tests/Feature` and `tests/Unit`.
 
 ## Build, Test, and Development Commands
 
@@ -16,11 +16,15 @@ This is a Laravel 13 accounting application using Filament for the admin UI. Cor
 
 ## Coding Style & Naming Conventions
 
-Follow `.editorconfig`: UTF-8, LF endings, final newline, trimmed trailing whitespace, and 4-space indentation for PHP. Use Laravel and PSR-4 conventions: singular model names such as `Invoice`, service classes ending in `Service`, jobs ending in `Job`, and Filament resources grouped by domain under `app/Filament/Resources/<Domain>`. Keep accounting behavior in service classes rather than page/resource classes. Format PHP with `./vendor/bin/pint`.
+Follow `.editorconfig`: UTF-8, LF endings, final newline, trimmed trailing whitespace, and 4-space indentation for PHP. Use Laravel/PSR-4 conventions: singular models, services ending in `Service`, jobs ending in `Job`, and Filament resources under `app/Filament/Resources/<Domain>`. Keep accounting behavior in services, not page/resource classes. Format PHP with `./vendor/bin/pint`.
+
+## UX Direction
+
+Build toward a Wave-style accounting cockpit: light app shell, intent navigation, quick actions, financial summaries before tables, and workflow pages for sales, purchases, banking, accounting, and reports. Prefer task labels like `Customers & Vendors` over raw model names like `Parties`.
 
 ## Testing Guidelines
 
-Tests use Pest with the Laravel plugin. Add feature tests for user-visible accounting workflows in `tests/Feature`, especially ledger posting, invoices, payments, bills, reports, and e-invoice status handling. Keep isolated pure-unit coverage in `tests/Unit`. Name test files by behavior, for example `InvoiceLifecycleTest.php`, and prefer descriptive `it(...)` cases. Run `composer test` before handing off changes.
+Tests use Pest with the Laravel plugin. Add feature tests for visible accounting workflows in `tests/Feature`, especially ledger posting, invoices, payments, bills, reports, and e-invoice status handling. Keep isolated unit coverage in `tests/Unit`. Name test files by behavior, for example `InvoiceLifecycleTest.php`. Run `composer test` before handoff.
 
 ## Commit & Pull Request Guidelines
 

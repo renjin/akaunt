@@ -53,6 +53,16 @@ class Invoice extends Model
         return $this->belongsTo(self::class, 'original_invoice_id');
     }
 
+    public function creditNotes(): HasMany
+    {
+        return $this->hasMany(self::class, 'original_invoice_id')->where('einvoice_type_code', '02');
+    }
+
+    public function isCreditNote(): bool
+    {
+        return $this->einvoice_type_code === '02';
+    }
+
     public function submissions(): HasMany
     {
         return $this->hasMany(EinvoiceSubmission::class);

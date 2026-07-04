@@ -17,6 +17,7 @@ class InvoiceMail extends Mailable
 
     public function __construct(public Invoice $invoice)
     {
+        $this->locale($invoice->company->document_locale ?? 'en');
     }
 
     public function envelope(): Envelope

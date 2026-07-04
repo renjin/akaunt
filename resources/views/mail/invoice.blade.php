@@ -1,11 +1,15 @@
 <x-mail::message>
-# Invoice {{ $invoice->invoice_number }}
+# {{ __('Invoice') }} {{ $invoice->invoice_number }}
 
-Hi {{ $invoice->party->name }},
+{{ __('Hi :name,', ['name' => $invoice->party->name]) }}
 
-Please find attached invoice **{{ $invoice->invoice_number }}** for
-**{{ $invoice->currency }} {{ number_format($invoice->total, 2) }}**@if($invoice->due_date), due **{{ $invoice->due_date->format('d M Y') }}**@endif.
+{{ __('Please find attached invoice :number for :amount', ['number' => "**{$invoice->invoice_number}**", 'amount' => "**{$invoice->currency} " . number_format($invoice->total, 2) . '**']) }}
+@if($invoice->due_date)
+{{ __(', due :date.', ['date' => "**{$invoice->due_date->format('d M Y')}**"]) }}
+@else
+.
+@endif
 
-Thanks,<br>
+{{ __('Thanks,') }}<br>
 {{ $invoice->company->name }}
 </x-mail::message>

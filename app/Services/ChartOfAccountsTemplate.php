@@ -77,6 +77,7 @@ class ChartOfAccountsTemplate
             ['4000', 'Sales Revenue',               'income', 'operating_revenue', false],
             ['4100', 'Service Revenue',             'income', 'operating_revenue', false],
             ['4900', 'Other Income',                'income', 'other_income', false],
+            ['4910', 'Foreign Exchange Gain/Loss',  'income', 'fx_gain_loss', true],
             // ---- Cost of sales & expenses ----
             ['5000', 'Cost of Sales',               'expense', 'cogs', false],
             ['6000', 'Salaries & Wages',            'expense', 'operating_expense', false],

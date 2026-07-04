@@ -11,14 +11,24 @@ use App\Models\Invoice;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class InvoiceResource extends Resource
 {
     protected static ?string $model = Invoice::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Sales & Payments';
+
+    protected static ?int $navigationSort = 10;
+
+    /** Credit notes are stored as invoices (einvoice_type_code=02) but browsed from the original invoice, not this list. */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('einvoice_type_code', '!=', '02');
+    }
 
     public static function form(Schema $schema): Schema
     {

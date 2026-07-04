@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\GenerateRecurringInvoicesJob;
 use App\Jobs\PollEinvoiceStatusJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -11,3 +12,6 @@ Artisan::command('inspire', function () {
 
 // LHDN validation is near-real-time; every 15 min is plenty for SME volume.
 Schedule::job(new PollEinvoiceStatusJob)->everyFifteenMinutes();
+
+// Recurring invoices only need to run once a day.
+Schedule::job(new GenerateRecurringInvoicesJob)->dailyAt('06:00');

@@ -6,11 +6,13 @@ use App\Mail\InvoiceMail;
 use App\Models\Account;
 use App\Models\Invoice;
 use App\Services\InvoicePdf;
+use App\Services\CreditNoteService;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -28,11 +30,55 @@ class InvoiceActions
             self::recordPayment(),
             self::sendEmail(),
             self::downloadPdf(),
+            self::createCreditNote(),
             self::queueEinvoice(),
             self::submitEinvoice(),
             self::cancelEinvoice(),
             self::void(),
         ];
+    }
+
+    public static function createCreditNote(): Action
+    {
+        return Action::make('createCreditNote')
+            ->label('Create credit note')
+            ->icon('heroicon-o-receipt-refund')
+            ->color('warning')
+            ->visible(fn (Invoice $record) => ! $record->isCreditNote()
+                && $record->isPosted()
+                && bccomp($record->balance_due, '0', 2) === 1)
+            ->modalHeading('Create credit note')
+            ->modalDescription(fn (Invoice $record) => "Reduces {$record->invoice_number}'s outstanding balance. Cannot exceed the unpaid amount ({$record->currency} {$record->balance_due}). Paid amounts need a refund, which is out of scope here.")
+            ->schema([
+                DatePicker::make('issue_date')->required()->default(today()),
+                Repeater::make('lines')
+                    ->schema([
+                        TextInput::make('description')->required()->default('Credit / correction')->columnSpan(2),
+                        TextInput::make('quantity')->numeric()->default(1),
+                        TextInput::make('unit_price')->numeric()->required(),
+                        Select::make('tax_code_id')
+                            ->label('Tax')
+                            ->options(fn () => Filament::getTenant()->taxCodes()->where('active', true)->pluck('name', 'id')),
+                        Select::make('income_account_id')
+                            ->label('Income account')
+                            ->options(fn () => Filament::getTenant()->accounts()
+                                ->where('type', 'income')->where('active', true)->orderBy('code')->get()
+                                ->mapWithKeys(fn (Account $a) => [$a->id => "{$a->code} · {$a->name}"])),
+                    ])
+                    ->columns(5)
+                    ->defaultItems(1)
+                    ->columnSpanFull(),
+            ])
+            ->action(function (Invoice $record, array $data) {
+                try {
+                    $svc = app(CreditNoteService::class);
+                    $creditNote = $svc->create($record, $data['issue_date'], $data['lines']);
+                    $svc->approve($creditNote);
+                    Notification::make()->success()->title("Credit note {$creditNote->invoice_number} created and posted.")->send();
+                } catch (InvalidArgumentException $e) {
+                    Notification::make()->danger()->title($e->getMessage())->send();
+                }
+            });
     }
 
     public static function queueEinvoice(): Action
@@ -147,6 +193,12 @@ class InvoiceActions
                     ->default('bank_transfer')
                     ->required(),
                 TextInput::make('reference'),
+                TextInput::make('settlement_fx_rate')
+                    ->label('Settlement exchange rate to MYR')
+                    ->helperText('Leave as booked rate unless the actual conversion rate differs — the difference posts as realized FX gain/loss.')
+                    ->numeric()
+                    ->default(fn (Invoice $record) => $record->fx_rate)
+                    ->visible(fn (Invoice $record) => $record->currency !== 'MYR'),
             ])
             ->action(function (Invoice $record, array $data) {
                 try {
@@ -157,6 +209,7 @@ class InvoiceActions
                         Account::findOrFail($data['bank_account_id']),
                         $data['method'],
                         $data['reference'] ?? null,
+                        $data['settlement_fx_rate'] ?? null,
                     );
                     Notification::make()->success()->title('Payment recorded.')->send();
                 } catch (InvalidArgumentException $e) {

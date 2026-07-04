@@ -20,6 +20,11 @@ class Party extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function isCustomer(): bool
     {
         return in_array($this->role, ['customer', 'both']);

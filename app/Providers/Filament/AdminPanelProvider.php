@@ -2,16 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\CompanySettings;
+use App\Filament\Resources\Invoices\InvoiceResource;
+use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -28,21 +30,38 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->tenant(\App\Models\Company::class, slugAttribute: 'slug')
-            ->tenantProfile(\App\Filament\Pages\CompanySettings::class)
+            ->brandName('akaunt')
+            ->tenant(Company::class, slugAttribute: 'slug')
+            ->tenantProfile(CompanySettings::class)
+            ->darkMode(false, isForced: true)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
+            ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->sidebarWidth('16rem')
+            ->navigationGroups([
+                NavigationGroup::make('Sales & Payments')
+                    ->collapsible(false),
+                NavigationGroup::make('Purchases')
+                    ->collapsible(false),
+                NavigationGroup::make('Accounting')
+                    ->collapsible(false),
+                NavigationGroup::make('Banking')
+                    ->collapsible(false),
+                NavigationGroup::make('Reports')
+                    ->collapsible(false),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                Dashboard::class,
+            ->pages([])
+            ->navigationItems([
+                NavigationItem::make('Create new')
+                    ->icon('heroicon-o-plus-circle')
+                    ->sort(-20)
+                    ->url(fn (): string => InvoiceResource::getUrl('create')),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

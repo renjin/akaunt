@@ -82,6 +82,12 @@ class PaymentService
     /**
      * Record a customer payment against an invoice.
      * Posts Dr Bank / Cr Accounts Receivable and rolls the invoice status.
+     *
+     * $settlementFxRate lets a foreign-currency invoice be settled at a
+     * different rate than it was booked at — the difference posts as a
+     * realized FX gain/loss (account 4910) so AR still clears at the rate
+     * it was originally recognized. Defaults to the invoice's own rate
+     * (no FX effect) for same-currency/MYR payments.
      */
     public function receiveAgainstInvoice(
         Invoice $invoice,
@@ -90,6 +96,7 @@ class PaymentService
         Account $bankAccount,
         string $method = 'bank_transfer',
         ?string $reference = null,
+        ?string $settlementFxRate = null,
     ): Payment {
         if (! $invoice->isPosted()) {
             throw new InvalidArgumentException('Cannot receive payment on a draft or void invoice.');
@@ -101,8 +108,9 @@ class PaymentService
         if (bccomp($amount, $invoice->balance_due, 2) === 1) {
             throw new InvalidArgumentException("Payment {$amount} exceeds balance due {$invoice->balance_due}.");
         }
+        $settlementFxRate = $settlementFxRate ?? (string) $invoice->fx_rate;
 
-        return DB::transaction(function () use ($invoice, $amount, $paymentDate, $bankAccount, $method, $reference) {
+        return DB::transaction(function () use ($invoice, $amount, $paymentDate, $bankAccount, $method, $reference, $settlementFxRate) {
             $company = $invoice->company;
 
             $payment = $company->payments()->create([
@@ -112,7 +120,7 @@ class PaymentService
                 'payment_date' => $paymentDate,
                 'amount' => $amount,
                 'currency' => $invoice->currency,
-                'fx_rate' => $invoice->fx_rate,
+                'fx_rate' => $settlementFxRate,
                 'bank_account_id' => $bankAccount->id,
                 'reference' => $reference,
             ]);
@@ -123,13 +131,25 @@ class PaymentService
                 'amount' => $amount,
             ]);
 
+            $lines = [
+                ['account_id' => $bankAccount->id, 'debit' => $amount, 'currency' => $invoice->currency, 'fx_rate' => $settlementFxRate],
+                ['account_id' => $company->systemAccount('accounts_receivable')->id, 'credit' => $amount, 'currency' => $invoice->currency, 'fx_rate' => $invoice->fx_rate],
+            ];
+
+            $bankBase = bcmul($amount, $settlementFxRate, 2);
+            $arBase = bcmul($amount, (string) $invoice->fx_rate, 2);
+            $diff = bcsub($bankBase, $arBase, 2);
+            if (bccomp($diff, '0', 2) !== 0) {
+                $fxAccount = $company->systemAccount('fx_gain_loss')->id;
+                $lines[] = bccomp($diff, '0', 2) === 1
+                    ? ['account_id' => $fxAccount, 'credit' => $diff] // gain: bank received more base currency than AR was booked at
+                    : ['account_id' => $fxAccount, 'debit' => bcmul($diff, '-1', 2)]; // loss
+            }
+
             $this->poster->post(
                 $company,
                 $paymentDate,
-                [
-                    ['account_id' => $bankAccount->id, 'debit' => $amount, 'currency' => $invoice->currency, 'fx_rate' => $invoice->fx_rate],
-                    ['account_id' => $company->systemAccount('accounts_receivable')->id, 'credit' => $amount, 'currency' => $invoice->currency, 'fx_rate' => $invoice->fx_rate],
-                ],
+                $lines,
                 "Payment for {$invoice->invoice_number} — {$invoice->party->name}",
                 $reference,
                 $payment,
