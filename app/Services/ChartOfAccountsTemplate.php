@@ -71,6 +71,10 @@ class ChartOfAccountsTemplate
             // ---- Liabilities ----
             ['2100', 'Accounts Payable',            'liability', 'accounts_payable', true],
             ['2200', 'SST Payable',                 'liability', 'sst_payable', true],
+            ['2210', 'EPF Payable',                 'liability', 'statutory_payable', true],
+            ['2220', 'SOCSO & EIS Payable',         'liability', 'statutory_payable', true],
+            ['2230', 'PCB Payable',                 'liability', 'statutory_payable', true],
+            ['2240', 'HRD Corp Levy Payable',       'liability', 'statutory_payable', true],
             ['2300', 'Accrued Expenses',            'liability', 'current_liability', false],
             ['2400', 'Loans Payable',               'liability', 'loan', false],
             // ---- Income ----
@@ -83,6 +87,7 @@ class ChartOfAccountsTemplate
             ['6000', 'Salaries & Wages',            'expense', 'operating_expense', false],
             ['6010', 'EPF Contributions',           'expense', 'operating_expense', false],
             ['6020', 'SOCSO & EIS Contributions',   'expense', 'operating_expense', false],
+            ['6030', 'HRD Corp Levy',               'expense', 'operating_expense', false],
             ['6100', 'Rent',                        'expense', 'operating_expense', false],
             ['6110', 'Utilities',                   'expense', 'operating_expense', false],
             ['6200', 'Marketing & Advertising',     'expense', 'operating_expense', false],
