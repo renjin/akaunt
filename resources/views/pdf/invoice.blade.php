@@ -23,6 +23,7 @@
         <td>
             <h1>{{ strtoupper(__('Invoice')) }}</h1>
             <div class="badge">{{ $invoice->invoice_number }}</div>
+            @if($invoice->po_number)<div class="muted">{{ __('P.O. / S.O.') }}: {{ $invoice->po_number }}</div>@endif
         </td>
         <td style="text-align:right">
             <strong>{{ $company->name }}</strong><br>
@@ -58,12 +59,30 @@
 
 <br>
 
+@php
+    // Group tax by code across all lines for the summary table.
+    $taxByCode = [];
+    foreach ($invoice->lines as $l) {
+        $codes = $l->effectiveTaxCodes();
+        $net = (float) $l->line_total;
+        foreach ($codes as $tc) {
+            $amt = (float) $tc->calculate($net);
+            if (! isset($taxByCode[$tc->id])) {
+                $taxByCode[$tc->id] = ['name' => $tc->name, 'amount' => 0.0];
+            }
+            $taxByCode[$tc->id]['amount'] += $amt;
+        }
+    }
+    $hasDiscount = $invoice->lines->contains(fn ($l) => (float) $l->discount != 0);
+@endphp
+
 <table class="lines">
     <thead>
     <tr>
-        <th style="width:46%">{{ __('Description') }}</th>
+        <th style="width:{{ $hasDiscount ? '40%' : '46%' }}">{{ __('Description') }}</th>
         <th class="num">{{ __('Qty') }}</th>
         <th class="num">{{ __('Unit price') }}</th>
+        @if($hasDiscount)<th class="num">{{ __('Discount') }}</th>@endif
         <th class="num">{{ __('Tax') }}</th>
         <th class="num">{{ __('Amount') }}</th>
     </tr>
@@ -74,6 +93,7 @@
             <td>{{ $line->description }}</td>
             <td class="num">{{ rtrim(rtrim(number_format($line->quantity, 2), '0'), '.') }}</td>
             <td class="num">{{ number_format($line->unit_price, 2) }}</td>
+            @if($hasDiscount)<td class="num">{{ (float) $line->discount != 0 ? '-' . number_format($line->discount, 2) : '' }}</td>@endif
             <td class="num">{{ number_format($line->tax_amount, 2) }}</td>
             <td class="num">{{ number_format($line->line_total, 2) }}</td>
         </tr>
@@ -83,7 +103,11 @@
 
 <table style="width: 40%; margin-left: 60%;" class="totals">
     <tr><td class="muted">{{ __('Subtotal') }}</td><td class="num">{{ number_format($invoice->subtotal, 2) }}</td></tr>
-    @if((float) $invoice->tax_total > 0)
+    @if(count($taxByCode) > 0)
+        @foreach($taxByCode as $tax)
+            <tr><td class="muted">{{ $tax['name'] }}</td><td class="num">{{ number_format($tax['amount'], 2) }}</td></tr>
+        @endforeach
+    @elseif((float) $invoice->tax_total > 0)
         <tr><td class="muted">{{ __('SST') }}</td><td class="num">{{ number_format($invoice->tax_total, 2) }}</td></tr>
     @endif
     @if((float) $invoice->rounding != 0)

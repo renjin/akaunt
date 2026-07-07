@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Company extends Model
 {
@@ -75,6 +76,11 @@ class Company extends Model
         return $this->hasMany(Estimate::class);
     }
 
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
     public function recurringInvoices(): HasMany
     {
         return $this->hasMany(RecurringInvoice::class);
@@ -85,7 +91,7 @@ class Company extends Model
         return $this->hasMany(BankTransaction::class);
     }
 
-    public function einvoiceCredential(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function einvoiceCredential(): HasOne
     {
         return $this->hasOne(EinvoiceCredential::class);
     }

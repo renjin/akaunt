@@ -39,14 +39,14 @@ it('renders phase 1 resource pages', function () {
 it('renders report pages', function () {
     foreach ([
         'aged-receivables', 'income-by-customer', 'trial-balance', 'profit-and-loss',
-        'balance-sheet', 'aged-payables', 'sst-return', 'general-ledger',
+        'balance-sheet', 'aged-payables', 'expenses', 'sst-return', 'general-ledger',
     ] as $path) {
         $this->actingAs($this->user)->get("/admin/smoke/{$path}")->assertOk();
     }
 });
 
 it('renders phase 2 resource pages', function () {
-    foreach (['bills', 'bills/create', 'bank-transactions'] as $path) {
+    foreach (['purchase-orders', 'purchase-orders/create', 'bills', 'bills/create', 'bank-transactions'] as $path) {
         $this->actingAs($this->user)->get("/admin/smoke/{$path}")->assertOk();
     }
 });

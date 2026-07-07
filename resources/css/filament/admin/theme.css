@@ -1,92 +1,356 @@
+/* =====================================================================
+   Akaunt — O2O Books redesign theme
+   Drop-in replacement for: resources/css/filament/admin/theme.css
+
+   Visual language (O2O Wiki Design System):
+     - Primary        Vivid Orange  #F48120
+     - Sidebar        Near-black    #0D0D0D  (light text, orange active)
+     - Page           Warm off-white #F9F9F9
+     - Display font   Urbanist (700/800)  — headings, logo, metrics
+     - Body font      Inter (400/500/600) — everything else
+     - Cards          #FFF, 1px #E8E8E8, radius 14px, soft shadow
+   Fonts are loaded via vite.config.js (Bunny) — Urbanist + Inter.
+===================================================================== */
+
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
 :root {
-    --ak-blue: #155eef;
-    --ak-blue-soft: #eaf3ff;
-    --ak-ink: #0b1f3a;
-    --ak-muted: #5b6b82;
-    --ak-line: #dbe5f0;
-    --ak-panel: #ffffff;
-    --ak-page: #f7fbff;
+    /* ── O2O brand palette ───────────────────────────── */
+    --ak-orange:       #F48120;
+    --ak-orange-hover: #D96910;
+    --ak-orange-active:#A84F0B;
+    --ak-orange-soft:  #FEF0E3;
+    --ak-orange-line:  #FDDBB8;
+
+    --ak-ink:    #0D0D0D;   /* primary text / brand black */
+    --ak-muted:  #6F6F6F;   /* secondary text — darkened from #808080 for WCAG AA 4.5:1 */
+    --ak-faint:  #8C8C8C;   /* tertiary text */
+    --ak-line:   #E8E8E8;   /* card + divider borders */
+    --ak-line-2: #F0F0F0;   /* inner hairlines */
+    --ak-panel:  #FFFFFF;
+    --ak-page:   #F9F9F9;
+
+    /* status */
+    --ak-danger:      #D4302F;
+    --ak-danger-soft: #FDECEA;
+    --ak-warn:        #856404;
+    --ak-warn-soft:   #FEF3E0;
+    --ak-success:     #3A6B1A;
+    --ak-success-soft:#E8F5E0;
+
+    /* type */
+    --ak-font-display: 'Urbanist', 'Roboto', Arial, sans-serif;
+    --ak-font-body:    'Inter', 'Roboto', Arial, sans-serif;
+
+    /* radii + shadow */
+    --ak-radius:    14px;
+    --ak-radius-sm: 10px;
+    --ak-shadow:    0 4px 16px rgba(0, 0, 0, 0.06);
+    --ak-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.10);
 }
 
-.fi-body {
+/* =====================================================================
+   1. GLOBAL SHELL
+===================================================================== */
+.fi-body,
+.fi-main {
     background: var(--ak-page);
     color: var(--ak-ink);
+    font-family: var(--ak-font-body);
 }
 
+/* headings + logo use the display face */
+.fi-header-heading,
+.fi-section-header-heading,
+.fi-logo,
+.ak-hero h2,
+.ak-metric,
+.ak-panel h3 {
+    font-family: var(--ak-font-display);
+}
+
+/* =====================================================================
+   2. SIDEBAR  — near-black with orange active state
+===================================================================== */
 .fi-sidebar,
-.fi-topbar {
-    background: #f7fbff;
+.fi-sidebar-nav {
+    background: var(--ak-ink);
+    border-color: transparent;
+}
+
+/* full-height black sidebar: Filament renders the topbar above the sidebar
+   in flow; pin the sidebar to the viewport and shift the content instead */
+@media (min-width: 1024px) {
+    .fi-sidebar.fi-main-sidebar.fi-sidebar-open {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100dvh;
+        z-index: 25;
+    }
+    .fi-layout:has(.fi-main-sidebar.fi-sidebar-open) .fi-main-ctn {
+        margin-left: 16rem;
+    }
+    /* topbar container is a sticky full-width sibling above the sidebar —
+       start it after the sidebar instead of painting over it */
+    .fi-body:has(.fi-main-sidebar.fi-sidebar-open) .fi-topbar-ctn {
+        margin-left: 16rem;
+    }
+}
+
+/* thin dark scrollbar so the nav doesn't get a bright default one */
+.fi-sidebar-nav {
+    scrollbar-width: thin;
+    scrollbar-color: #333333 transparent;
+}
+
+.fi-sidebar-header,
+.fi-topbar > * {
+    background: transparent;
     border-color: var(--ak-line);
 }
 
 .fi-logo {
-    color: var(--ak-ink);
+    color: #ffffff;
     font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* group labels ("Sales & Payments", etc.) */
+.fi-sidebar-group-label {
+    color: #6a6a6a;
+    font-family: var(--ak-font-body);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* nav items */
+.fi-sidebar-item-btn {
+    color: #c8c8c8;
+    font-family: var(--ak-font-body);
+    font-weight: 500;
+    border-radius: 9px;
+}
+
+.fi-sidebar-item-icon {
+    color: #8a8a8a;
+}
+
+/* Filament sets its own (dark) color on the label span — override it */
+.fi-sidebar-item-label {
+    color: #c8c8c8;
+}
+.fi-sidebar-item-btn:hover .fi-sidebar-item-label {
+    color: #ffffff;
+}
+.fi-sidebar-item-active > .fi-sidebar-item-btn .fi-sidebar-item-label,
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-label {
+    color: var(--ak-orange);
+}
+.fi-sidebar-nav-groups > .fi-sidebar-group:first-child .fi-sidebar-item:first-child .fi-sidebar-item-label {
+    color: #ffffff;
+}
+
+.fi-sidebar-item-btn:hover {
+    background: #1c1c1c;
+    color: #ffffff;
+}
+
+.fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
+    color: #ffffff;
 }
 
 .fi-sidebar-item-active > .fi-sidebar-item-btn,
-.fi-sidebar-item-btn:hover {
-    background: #e5f1ff;
-    color: var(--ak-ink);
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background: #1c1c1c;
+    color: var(--ak-orange);
+    font-weight: 600;
 }
 
 .fi-sidebar-item-active .fi-sidebar-item-icon,
-.fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
-    color: var(--ak-blue);
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon {
+    color: var(--ak-orange);
 }
 
+/* "Create new" nav item → solid orange pill (first item of the first,
+   unlabeled nav group — where ungrouped items with sort -20 render) */
+.fi-sidebar-nav-groups > .fi-sidebar-group:first-child .fi-sidebar-item:first-child .fi-sidebar-item-btn {
+    background: var(--ak-orange);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(244, 129, 32, 0.35);
+    margin-bottom: 6px;
+}
+.fi-sidebar-nav-groups > .fi-sidebar-group:first-child .fi-sidebar-item:first-child .fi-sidebar-item-icon {
+    color: #ffffff;
+}
+.fi-sidebar-nav-groups > .fi-sidebar-group:first-child .fi-sidebar-item:first-child .fi-sidebar-item-btn:hover {
+    background: var(--ak-orange-hover);
+    color: #ffffff;
+}
+
+/* user menu / footer sits on dark */
+.fi-sidebar .fi-dropdown-trigger,
+.fi-sidebar-footer {
+    color: #e0e0e0;
+    border-color: #1e1e1e;
+}
+
+/* tenant switcher — readable on the dark sidebar */
+.fi-sidebar .fi-tenant-menu-trigger,
+.fi-sidebar .fi-tenant-menu-trigger-tenant-name {
+    color: #ffffff;
+}
+.fi-sidebar .fi-tenant-menu-trigger .fi-icon {
+    color: #8a8a8a;
+}
+.fi-sidebar .fi-tenant-menu-trigger:hover {
+    background: #1c1c1c;
+}
+
+/* =====================================================================
+   3. TOPBAR
+===================================================================== */
+.fi-topbar {
+    background: var(--ak-panel);
+    border-bottom: 1px solid var(--ak-line);
+}
+
+.fi-topbar .fi-input,
+.fi-global-search-field .fi-input {
+    background: var(--ak-page);
+    border: 1px solid var(--ak-line);
+    border-radius: var(--ak-radius-sm);
+}
+
+/* =====================================================================
+   4. BUTTONS  — orange primary, black secondary
+===================================================================== */
+.fi-btn {
+    font-family: var(--ak-font-body);
+    font-weight: 600;
+    border-radius: var(--ak-radius-sm);
+}
+
+.fi-btn.fi-color-primary,
+.fi-btn-color-primary {
+    background: var(--ak-orange);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(244, 129, 32, 0.30);
+}
+.fi-btn.fi-color-primary:hover,
+.fi-btn-color-primary:hover {
+    background: var(--ak-orange-hover);
+}
+
+/* links + text buttons */
+a.fi-link,
+.fi-link-color-primary {
+    color: var(--ak-orange);
+    font-weight: 600;
+}
+a.fi-link:hover,
+.fi-link-color-primary:hover {
+    color: var(--ak-orange-hover);
+}
+
+/* =====================================================================
+   5. CARDS / SECTIONS / TABLES  (Filament resource pages)
+===================================================================== */
+.fi-section,
+.fi-wi,
+.fi-ta,
+.fi-fo-component-ctn > .fi-section {
+    background: var(--ak-panel);
+    border: 1px solid var(--ak-line);
+    border-radius: var(--ak-radius);
+    box-shadow: var(--ak-shadow);
+}
+
+.fi-section-header-heading {
+    color: var(--ak-ink);
+    font-weight: 700;
+}
+
+/* table rows — clickable (record URLs), so signal it */
+.fi-ta-row:hover {
+    background: #FEF8F2;    /* faint orange tint */
+    cursor: pointer;
+}
+.fi-ta-header-cell {
+    color: var(--ak-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 11.5px;
+}
+
+/* badges — recolor status pills */
+.fi-badge.fi-color-danger  { background: var(--ak-danger-soft);  color: #B4302F; }
+.fi-badge.fi-color-warning { background: var(--ak-warn-soft);    color: var(--ak-warn); }
+.fi-badge.fi-color-success { background: var(--ak-success-soft); color: var(--ak-success); }
+.fi-badge.fi-color-primary { background: var(--ak-orange-soft);  color: var(--ak-orange-active); }
+
+/* form inputs */
+.fi-input,
+.fi-select-input {
+    border-radius: var(--ak-radius-sm);
+}
+.fi-input:focus,
+.fi-select-input:focus {
+    border-color: var(--ak-orange);
+    box-shadow: 0 0 0 1px var(--ak-orange);
+}
+
+/* =====================================================================
+   6. CUSTOM DASHBOARD  (.ak-* classes in dashboard.blade.php)
+===================================================================== */
 .ak-dashboard {
     display: grid;
     gap: 24px;
 }
 
-.ak-notice,
-.ak-panel,
-.ak-hero {
-    border: 1px solid var(--ak-line);
-    border-radius: 8px;
-    background: var(--ak-panel);
-}
-
+/* notice banner → warm orange accent */
 .ak-notice {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    border-left: 4px solid var(--ak-blue);
+    border: 1px solid var(--ak-orange-line);
+    border-left: 4px solid var(--ak-orange);
+    border-radius: var(--ak-radius);
     padding: 18px 22px;
-    background: #f1f8ff;
+    background: var(--ak-orange-soft);
 }
-
-.ak-notice strong,
-.ak-panel h3 {
+.ak-notice strong {
     color: var(--ak-ink);
+    font-family: var(--ak-font-display);
     font-size: 17px;
     font-weight: 700;
 }
-
-.ak-notice p,
-.ak-panel p,
-.ak-hero p {
+.ak-notice p {
     margin-top: 4px;
-    color: var(--ak-muted);
+    color: #7A3807;
     font-size: 14px;
     line-height: 1.45;
 }
-
 .ak-notice a,
 .ak-panel-head a,
 .ak-bank-card a {
-    color: var(--ak-blue);
+    color: var(--ak-orange);
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
 }
+.ak-notice a:hover,
+.ak-panel-head a:hover,
+.ak-bank-card a:hover { color: var(--ak-orange-hover); }
 
+/* hero greeting → Urbanist, not serif */
 .ak-hero {
     display: flex;
     align-items: end;
@@ -96,72 +360,101 @@
     border: 0;
     background: transparent;
 }
-
 .ak-hero h2 {
     color: var(--ak-ink);
-    font-family: Georgia, Cambria, serif;
-    font-size: clamp(36px, 5vw, 54px);
-    font-weight: 500;
+    font-family: var(--ak-font-display);
+    font-size: clamp(30px, 4vw, 40px);
+    font-weight: 800;
+    letter-spacing: -1px;
     line-height: 1.05;
+}
+.ak-hero p {
+    margin-top: 6px;
+    color: var(--ak-muted);
+    font-size: 15px;
 }
 
 .ak-secondary {
-    border: 1px solid #9bb7dc;
-    border-radius: 999px;
-    color: #123c7a;
+    border: 1.5px solid var(--ak-line);
+    border-radius: var(--ak-radius-sm);
+    background: #fff;
+    color: #404040;
     font-size: 14px;
-    font-weight: 700;
-    padding: 9px 15px;
+    font-weight: 600;
+    padding: 10px 16px;
 }
+.ak-secondary:hover { background: #F3F3F3; }
 
+/* quick-action cards */
 .ak-actions {
     display: grid;
     gap: 16px;
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-
 .ak-action {
     align-items: center;
-    border-radius: 8px;
+    background: var(--ak-panel);
+    border: 1px solid var(--ak-line);
+    border-radius: var(--ak-radius);
+    box-shadow: var(--ak-shadow);
     display: flex;
-    gap: 12px;
-    min-height: 58px;
-    padding: 14px 18px;
+    gap: 14px;
+    min-height: 64px;
+    padding: 18px 20px;
     color: var(--ak-ink);
+    font-family: var(--ak-font-display);
     font-weight: 700;
+    font-size: 15.5px;
+    transition: transform 180ms ease, box-shadow 180ms ease;
 }
-
+.ak-action:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ak-shadow-md);
+}
 .ak-action-icon {
     align-items: center;
-    background: rgb(255 255 255 / 72%);
-    border-radius: 8px;
+    border-radius: 11px;
     display: inline-flex;
-    height: 32px;
+    height: 42px;
+    width: 42px;
     justify-content: center;
-    width: 32px;
+    font-family: var(--ak-font-display);
+    font-weight: 800;
+    font-size: 17px;
+    flex-shrink: 0;
 }
-
-.ak-action-blue { background: #e8f3ff; }
-.ak-action-green { background: #e9f8ef; }
-.ak-action-lavender { background: #f0ecff; }
-.ak-action-yellow { background: #fff4d8; }
-
-.ak-grid {
-    display: grid;
-    gap: 20px;
+.ak-action-icon svg {
+    height: 22px;
+    width: 22px;
 }
+.ak-action-blue     { --tone: #0066CC; }
+.ak-action-green    { --tone: #6B9E3C; }
+.ak-action-lavender { --tone: #9D43DD; }
+.ak-action-yellow   { --tone: var(--ak-orange); }
+.ak-action-blue     .ak-action-icon { background: #E5F0FF; color: #0066CC; }
+.ak-action-green    .ak-action-icon { background: var(--ak-success-soft); color: #4A7A1F; }
+.ak-action-lavender .ak-action-icon { background: #F3E8FF; color: #9D43DD; }
+.ak-action-yellow   .ak-action-icon { background: var(--ak-orange-soft); color: var(--ak-orange); }
 
-.ak-grid-main {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.ak-span-2 {
-    grid-column: span 2;
-}
+/* panel grid */
+.ak-grid { display: grid; gap: 20px; }
+.ak-grid-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ak-span-2 { grid-column: span 2; }
 
 .ak-panel {
-    padding: 22px;
+    background: var(--ak-panel);
+    border: 1px solid var(--ak-line);
+    border-radius: var(--ak-radius);
+    box-shadow: var(--ak-shadow);
+    padding: 24px;
 }
+.ak-panel h3 {
+    color: var(--ak-ink);
+    font-family: var(--ak-font-display);
+    font-size: 19px;
+    font-weight: 700;
+}
+.ak-panel p { margin-top: 4px; color: var(--ak-muted); font-size: 13px; line-height: 1.45; }
 
 .ak-panel-head {
     align-items: start;
@@ -177,49 +470,39 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.ak-metric-label {
-    color: var(--ak-muted);
-    font-size: 13px;
-    font-weight: 700;
-}
-
+.ak-metric-label { color: var(--ak-muted); font-size: 12.5px; font-weight: 600; }
 .ak-metric {
     color: var(--ak-ink);
-    font-size: 28px;
-    font-weight: 700;
-    margin-top: 4px;
+    font-family: var(--ak-font-display);
+    font-size: 30px;
+    font-weight: 800;
+    margin-top: 6px;
 }
 
-.ak-list {
-    display: grid;
-    gap: 10px;
-    margin-top: 16px;
-}
-
+.ak-list { display: grid; gap: 0; margin-top: 16px; }
 .ak-list a,
 .ak-list p,
 .ak-dues div,
 .ak-bank-card {
-    border-top: 1px solid var(--ak-line);
+    border-top: 1px solid var(--ak-line-2);
     color: var(--ak-ink);
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    padding-top: 10px;
+    padding: 13px 4px;
+    font-size: 14px;
 }
-
+.ak-list a:hover { background: #FEF8F2; border-radius: 8px; }
 .ak-list span,
 .ak-dues span,
-.ak-bank-card span {
-    color: var(--ak-muted);
-}
+.ak-bank-card span { color: var(--ak-muted); }
+.ak-list strong,
+.ak-dues strong { font-family: var(--ak-font-display); font-weight: 700; }
 
+/* cash-flow + profit bars */
 .ak-bars,
 .ak-profit-bars,
-.ak-dues {
-    display: grid;
-    gap: 14px;
-}
+.ak-dues { display: grid; gap: 14px; }
 
 .ak-bar-row {
     align-items: center;
@@ -227,77 +510,129 @@
     gap: 12px;
     grid-template-columns: 42px 1fr;
 }
-
-.ak-bar-row span {
-    color: var(--ak-muted);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.ak-bar-row div {
-    display: grid;
-    gap: 5px;
-}
-
+.ak-bar-row span { color: var(--ak-muted); font-size: 12px; font-weight: 600; }
+.ak-bar-row div { display: grid; gap: 5px; }
 .ak-bar-row i,
 .ak-profit-bars i {
     border-radius: 999px;
     display: block;
     height: 8px;
 }
+.ak-inflow  { background: #6B9E3C; }   /* inflow green   */
+.ak-outflow { background: #E0E0E0; }   /* outflow gray   */
 
-.ak-inflow { background: #2fb67d; }
-.ak-outflow { background: #8fb4ff; }
-
-.ak-profit-bars div {
-    display: grid;
-    gap: 6px;
-}
-
-.ak-profit-bars span {
-    color: var(--ak-muted);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.ak-profit-bars strong {
-    color: var(--ak-ink);
-}
-
-.ak-income { background: #155eef; }
-.ak-expense { background: #f2b84b; }
-.ak-profit { background: #2fb67d; }
+.ak-profit-bars div { display: grid; gap: 6px; }
+.ak-profit-bars span { color: var(--ak-muted); font-size: 13px; font-weight: 600; }
+.ak-profit-bars strong { color: var(--ak-ink); font-family: var(--ak-font-display); }
+.ak-income  { background: var(--ak-orange); }
+.ak-expense { background: #D4A118; }
+.ak-profit  { background: #6B9E3C; }
 
 .ak-dues div,
 .ak-bank-card {
     align-items: center;
     border: 1px solid var(--ak-line);
-    border-radius: 8px;
-    padding: 14px;
+    border-radius: var(--ak-radius-sm);
+    padding: 14px 16px;
+}
+.ak-bank-card { display: grid; gap: 4px; }
+
+/* money and data columns keep digits aligned */
+table,
+.ak-metric,
+.ak-list strong,
+.ak-dues strong {
+    font-variant-numeric: tabular-nums;
 }
 
-.ak-bank-card {
-    display: grid;
-    gap: 4px;
+/* =====================================================================
+   6b. ACCESSIBILITY
+===================================================================== */
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible {
+    outline: 2px solid var(--ak-orange);
+    outline-offset: 2px;
+    border-radius: 6px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .ak-action,
+    .ak-action:hover {
+        transform: none;
+        transition: none;
+    }
+}
+
+/* =====================================================================
+   7. RESPONSIVE
+===================================================================== */
 @media (max-width: 1024px) {
     .ak-actions,
     .ak-grid-main,
-    .ak-split {
-        grid-template-columns: 1fr;
-    }
-
-    .ak-span-2 {
-        grid-column: auto;
-    }
+    .ak-split { grid-template-columns: 1fr; }
+    .ak-span-2 { grid-column: auto; }
 }
-
 @media (max-width: 640px) {
     .ak-notice,
     .ak-hero,
-    .ak-panel-head {
-        align-items: stretch;
-        flex-direction: column;
-    }
+    .ak-panel-head { align-items: stretch; flex-direction: column; }
+}
+
+/* =====================================================================
+   8. REPORTS INDEX
+===================================================================== */
+.ak-reports {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+.ak-report-group h2 {
+    font-family: var(--ak-font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ak-ink);
+    margin-bottom: 12px;
+}
+.ak-report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+}
+.ak-report-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: var(--ak-panel);
+    border: 1px solid var(--ak-line);
+    border-radius: var(--ak-radius);
+    box-shadow: var(--ak-shadow);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ak-report-card:hover {
+    border-color: var(--ak-orange-line);
+    box-shadow: var(--ak-shadow-md);
+}
+.ak-report-icon {
+    flex-shrink: 0;
+    color: var(--ak-orange);
+}
+.ak-report-icon svg {
+    width: 22px;
+    height: 22px;
+}
+.ak-report-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.ak-report-body strong {
+    font-family: var(--ak-font-display);
+    font-size: 14px;
+    color: var(--ak-ink);
+}
+.ak-report-body span {
+    font-size: 12.5px;
+    color: var(--ak-muted);
 }

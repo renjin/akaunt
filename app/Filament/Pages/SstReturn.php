@@ -16,7 +16,10 @@ class SstReturn extends Page
 
     protected static ?string $title = 'SST-02 Summary';
 
+    protected static ?int $navigationSort = 9;
+
     public string $from = '';
+
     public string $to = '';
 
     public function mount(): void
@@ -29,5 +32,21 @@ class SstReturn extends Page
     public function getReport(): array
     {
         return app(ReportService::class)->sstOutputSummary(Filament::getTenant(), $this->from, $this->to);
+    }
+
+    public function downloadCsv()
+    {
+        $r = $this->getReport();
+
+        return response()->streamDownload(function () use ($r) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['SST-02 Summary', $this->from.' to '.$this->to]);
+            fputcsv($out, ['Tax code', 'Rate (%)', 'Taxable amount', 'Output tax']);
+            foreach ($r['rows'] as $row) {
+                fputcsv($out, [$row->name, $row->rate, $row->taxable, $row->tax]);
+            }
+            fputcsv($out, ['Total', '', $r['total_taxable'], $r['total_tax']]);
+            fclose($out);
+        }, 'sst-02-'.$this->from.'-to-'.$this->to.'.csv');
     }
 }

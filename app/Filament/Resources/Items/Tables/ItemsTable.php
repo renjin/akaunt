@@ -2,8 +2,7 @@
 
 namespace App\Filament\Resources\Items\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\CreateAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -15,30 +14,43 @@ class ItemsTable
     {
         return $table
             ->columns([
-                TextColumn::make('company.name')
-                    ->searchable(),
-                TextColumn::make('type')
-                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('kind')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->color(fn (string $state): string => $state === 'sales' ? 'info' : 'warning'),
+                TextColumn::make('type')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->color('gray'),
                 TextColumn::make('sku')
                     ->label('SKU')
                     ->searchable(),
                 TextColumn::make('unit_price')
-                    ->money()
+                    ->money('MYR')
                     ->sortable(),
-                TextColumn::make('unit_of_measure')
-                    ->searchable(),
                 TextColumn::make('incomeAccount.name')
-                    ->searchable(),
+                    ->label('Income account')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('expenseAccount.name')
-                    ->searchable(),
+                    ->label('Expense account')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('defaultTaxCode.name')
-                    ->searchable(),
-                TextColumn::make('classification_code')
-                    ->searchable(),
+                    ->label('Default tax')
+                    ->searchable()
+                    ->toggleable(),
                 IconColumn::make('active')
                     ->boolean(),
+                TextColumn::make('unit_of_measure')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('classification_code')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -48,16 +60,17 @@ class ItemsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading('No products or services yet')
+            ->emptyStateDescription('Add the things you sell so they are one click away when you invoice.')
+            ->emptyStateActions([
+                CreateAction::make()
+                    ->label('New product or service'),
+            ])
             ->filters([
                 //
             ])
             ->recordActions([
                 EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

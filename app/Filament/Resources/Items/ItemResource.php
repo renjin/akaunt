@@ -23,6 +23,10 @@ class ItemResource extends Resource
 
     protected static ?string $navigationLabel = 'Products & Services';
 
+    protected static ?string $modelLabel = 'product or service';
+
+    protected static ?string $pluralModelLabel = 'Products & Services';
+
     protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema

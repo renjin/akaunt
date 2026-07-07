@@ -14,6 +14,8 @@ class TrialBalance extends Page
 
     protected static string|\UnitEnum|null $navigationGroup = 'Reports';
 
+    protected static ?int $navigationSort = 3;
+
     public string $asOf = '';
 
     public function mount(): void
@@ -24,5 +26,21 @@ class TrialBalance extends Page
     public function getReport(): array
     {
         return app(ReportService::class)->trialBalance(Filament::getTenant(), $this->asOf);
+    }
+
+    public function downloadCsv()
+    {
+        $r = $this->getReport();
+
+        return response()->streamDownload(function () use ($r) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Trial Balance', 'As of '.$this->asOf]);
+            fputcsv($out, ['Account', 'Debit', 'Credit']);
+            foreach ($r['rows'] as $row) {
+                fputcsv($out, [$row['account']->code.' '.$row['account']->name, $row['debit'], $row['credit']]);
+            }
+            fputcsv($out, ['Total', $r['total_debit'], $r['total_credit']]);
+            fclose($out);
+        }, 'trial-balance-'.$this->asOf.'.csv');
     }
 }

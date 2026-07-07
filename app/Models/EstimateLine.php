@@ -9,6 +9,28 @@ class EstimateLine extends Model
 {
     protected $guarded = [];
 
+    protected function casts(): array
+    {
+        return ['tax_code_ids' => 'array'];
+    }
+
+    /**
+     * Tax codes applied to this line. Falls back to the legacy single
+     * tax_code_id when tax_code_ids is empty (back-compat).
+     *
+     * @return array<int, int>
+     */
+    public function effectiveTaxCodeIds(): array
+    {
+        $ids = $this->tax_code_ids;
+
+        if (is_array($ids) && $ids !== []) {
+            return array_values(array_map('intval', $ids));
+        }
+
+        return $this->tax_code_id ? [(int) $this->tax_code_id] : [];
+    }
+
     public function estimate(): BelongsTo
     {
         return $this->belongsTo(Estimate::class);

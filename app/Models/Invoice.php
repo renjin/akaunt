@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Invoice extends Model
@@ -15,8 +16,10 @@ class Invoice extends Model
 
     protected $attributes = [
         'status' => 'draft', 'currency' => 'MYR', 'fx_rate' => 1, 'amount_paid' => 0,
-        'subtotal' => 0, 'discount_total' => 0, 'tax_total' => 0, 'rounding' => 0, 'total' => 0,
+        'subtotal' => 0, 'discount_total' => 0, 'discount_type' => 'fixed', 'discount_value' => 0,
+        'tax_total' => 0, 'rounding' => 0, 'total' => 0,
         'einvoice_type_code' => '01', 'einvoice_status' => 'not_applicable',
+        'reminders_sent_count' => 0,
     ];
 
     protected function casts(): array
@@ -25,6 +28,9 @@ class Invoice extends Model
             'issue_date' => 'date',
             'due_date' => 'date',
             'issue_time_utc' => 'datetime',
+            'last_sent_at' => 'datetime',
+            'last_reminder_at' => 'datetime',
+            'reminders_sent_count' => 'integer',
         ];
     }
 
@@ -69,7 +75,7 @@ class Invoice extends Model
     }
 
     /** Latest submission, for display. */
-    public function submission(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function submission(): HasOne
     {
         return $this->hasOne(EinvoiceSubmission::class)->latestOfMany();
     }

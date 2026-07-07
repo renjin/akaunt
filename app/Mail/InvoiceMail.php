@@ -15,7 +15,7 @@ class InvoiceMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Invoice $invoice)
+    public function __construct(public Invoice $invoice, public bool $reminder = false)
     {
         $this->locale($invoice->company->document_locale ?? 'en');
     }
@@ -23,7 +23,9 @@ class InvoiceMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "{$this->invoice->company->name} — Invoice {$this->invoice->invoice_number}",
+            subject: $this->reminder
+                ? "Payment reminder: Invoice {$this->invoice->invoice_number}"
+                : "{$this->invoice->company->name} — Invoice {$this->invoice->invoice_number}",
             replyTo: array_filter([$this->invoice->company->email]),
         );
     }

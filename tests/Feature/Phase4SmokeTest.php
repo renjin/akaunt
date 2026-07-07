@@ -16,6 +16,7 @@ beforeEach(function () {
 it('renders phase 4 resource and report pages', function () {
     foreach ([
         'estimates', 'estimates/create',
+        'purchase-orders', 'purchase-orders/create',
         'recurring-invoices', 'recurring-invoices/create',
         'reconcile-account', 'customer-statement',
     ] as $path) {

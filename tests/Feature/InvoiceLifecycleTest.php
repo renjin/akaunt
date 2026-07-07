@@ -2,13 +2,15 @@
 
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\JournalEntry;
 use App\Services\ChartOfAccountsTemplate;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use App\Services\ReportService;
 
 beforeEach(function () {
     $this->company = Company::create([
-        'name' => 'Agency Sdn Bhd', 'slug' => 'agency-' . uniqid(), 'legal_form' => 'sdn_bhd',
+        'name' => 'Agency Sdn Bhd', 'slug' => 'agency-'.uniqid(), 'legal_form' => 'sdn_bhd',
         'base_currency' => 'MYR', 'sst_registration_no' => 'W10-1234-56789012',
     ]);
     ChartOfAccountsTemplate::seed($this->company);
@@ -124,4 +126,39 @@ it('exempt tax code produces zero tax', function () {
 
     expect($invoice->refresh()->tax_total)->toBe('0.00')
         ->and($invoice->total)->toBe('5000.00');
+});
+
+it('reposts an edited posted invoice with a balanced, updated ledger entry', function () {
+    $invoice = makeInvoice($this);
+    $this->svc->approve($invoice);
+
+    // Edit the posted invoice: bump the line price 5000 -> 8000
+    $invoice->refresh()->lines->first()->forceFill(['unit_price' => 8000])->save();
+    $this->svc->repost($invoice->refresh());
+
+    $invoice->refresh();
+    expect($invoice->status)->toBe('approved')
+        ->and($invoice->total)->toBe('8640.00') // 8000 + 8% SST
+        ->and($this->company->accounts()->where('code', '1100')->first()->balance())->toBe('8640.00')
+        ->and($this->company->accounts()->where('code', '2200')->first()->balance())->toBe('640.00')
+        ->and(JournalEntry::query()
+            ->where('source_type', Invoice::class)
+            ->where('source_id', $invoice->id)
+            ->count())->toBe(1);
+
+    $tb = app(ReportService::class)->trialBalance($this->company);
+    expect(bccomp($tb['total_debit'], $tb['total_credit'], 2))->toBe(0);
+});
+
+it('repost re-derives partial status from existing payments', function () {
+    $invoice = makeInvoice($this);
+    $this->svc->approve($invoice);
+    $bank = $this->company->accounts()->where('code', '1010')->first();
+    app(PaymentService::class)->receiveAgainstInvoice($invoice->refresh(), '1000.00', '2026-07-05', $bank, 'fpx');
+
+    $invoice->refresh()->lines->first()->forceFill(['unit_price' => 8000])->save();
+    $this->svc->repost($invoice->refresh());
+
+    expect($invoice->refresh()->status)->toBe('partial')
+        ->and((float) $invoice->amount_paid)->toBe(1000.0);
 });

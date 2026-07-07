@@ -9,7 +9,7 @@ use Filament\Facades\Filament;
 
 beforeEach(function () {
     $this->company = Company::create([
-        'name' => 'Statement Sdn Bhd', 'slug' => 'stmt-' . uniqid(), 'legal_form' => 'sdn_bhd',
+        'name' => 'Statement Sdn Bhd', 'slug' => 'stmt-'.uniqid(), 'legal_form' => 'sdn_bhd',
     ]);
     Filament::setTenant($this->company, isQuiet: true);
     ChartOfAccountsTemplate::seed($this->company);
@@ -30,8 +30,9 @@ beforeEach(function () {
 });
 
 it('computes opening balance from prior-period activity and a correct running balance', function () {
-    $page = new CustomerStatement();
+    $page = new CustomerStatement;
     $page->partyId = $this->customer->id;
+    $page->type = 'activity';
     $page->from = '2026-06-01';
     $page->to = '2026-06-30';
 

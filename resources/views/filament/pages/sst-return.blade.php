@@ -4,10 +4,7 @@
             Output tax collected for the taxable period — figures for your SST-02 return.
             SST is single-stage: there is no input tax credit to net off.
         </p>
-        <div class="flex gap-4 mb-4">
-            <label class="text-sm">From <input type="date" wire:model.live="from" class="rounded border-gray-300 text-sm"></label>
-            <label class="text-sm">To <input type="date" wire:model.live="to" class="rounded border-gray-300 text-sm"></label>
-        </div>
+        @include('filament.pages.partials.report-toolbar', ['mode' => 'range'])
         @php($r = $this->getReport())
         <table class="w-full text-sm">
             <thead>

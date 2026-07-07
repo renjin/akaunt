@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #D0D0D0; border-radius: 9999px; border: 2px solid #F9F9F9; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  /* prevent grid/flex items (KPI cards, metric tiles) from forcing horizontal overflow */
+  main div { min-width: 0; }
+  .o2o-navbtn:hover { background: #1c1c1c !important; }
+  .o2o-subnav:hover { color: #fff !important; }
+  .o2o-row:hover { background: #FEF8F2 !important; }
+  .o2o-quick:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important; }
+  .o2o-linkbtn:hover { color: #D96910 !important; }
+  input:focus, select:focus { border-color: #F48120 !important; outline: none; }
+</style>
+</helmet>
+
+<div style="display:flex; height:100vh; width:100%; font-family:'Inter','Roboto',Arial,sans-serif; background:#F9F9F9; color:#000; overflow:hidden;">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside style="width:240px; flex-shrink:0; background:#0d0d0d; display:flex; flex-direction:column; height:100%;">
+    <div style="padding:22px 20px 18px; display:flex; align-items:center; gap:10px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:#F48120; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <div style="width:15px; height:15px; border-radius:50%; background:#0d0d0d;"></div>
+      </div>
+      <div style="display:flex; flex-direction:column; line-height:1;">
+        <span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:19px; letter-spacing:-0.5px; color:#fff;">Books</span>
+        <span style="font-family:'Inter',sans-serif; font-weight:500; font-size:9.5px; letter-spacing:2.5px; color:#7a7a7a; margin-top:2px;">BY O2O</span>
+      </div>
+    </div>
+
+    <button class="o2o-navbtn" onClick="{{ navCreate }}" style="margin:6px 14px 14px; height:42px; display:flex; align-items:center; justify-content:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.35);">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create new
+    </button>
+
+    <nav style="padding:0 12px 12px; display:flex; flex-direction:column; gap:1px; flex:1; overflow-y:auto;">
+      <button class="o2o-navbtn" onClick="{{ navDashboard }}" style="width:100%; display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:9px; border:none; background:{{ dashBg }}; color:{{ dashFg }}; font-family:'Inter',sans-serif; font-weight:{{ dashWt }}; font-size:14px; cursor:pointer; text-align:left; margin-bottom:8px;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </button>
+
+      <!-- Sales & Payments -->
+      <div style="font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:{{ salesFg }}; padding:10px 12px 5px;">Sales &amp; Payments</div>
+      <button class="o2o-subnav" onClick="{{ navEstimates }}" style="text-align:left; border:none; background:{{ estimatesBg }}; color:{{ estimatesFg }}; font-family:'Inter',sans-serif; font-weight:{{ estimatesWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Estimates</button>
+      <button class="o2o-subnav" onClick="{{ navInvoices }}" style="text-align:left; border:none; background:{{ invoicesBg }}; color:{{ invoicesFg }}; font-family:'Inter',sans-serif; font-weight:{{ invoicesWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Invoices</button>
+      <button class="o2o-subnav" onClick="{{ navRecurring }}" style="text-align:left; border:none; background:{{ recurringBg }}; color:{{ recurringFg }}; font-family:'Inter',sans-serif; font-weight:{{ recurringWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Recurring Invoices</button>
+      <button class="o2o-subnav" onClick="{{ navStatements }}" style="text-align:left; border:none; background:{{ statementsBg }}; color:{{ statementsFg }}; font-family:'Inter',sans-serif; font-weight:{{ statementsWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Customer Statements</button>
+      <button class="o2o-subnav" onClick="{{ navPartiesList }}" style="text-align:left; border:none; background:{{ partiesBg }}; color:{{ partiesFg }}; font-family:'Inter',sans-serif; font-weight:{{ partiesWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Customers &amp; Vendors</button>
+      <button class="o2o-subnav" onClick="{{ navItems }}" style="text-align:left; border:none; background:{{ itemsBg }}; color:{{ itemsFg }}; font-family:'Inter',sans-serif; font-weight:{{ itemsWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer; margin-bottom:6px;">Products &amp; Services</button>
+
+      <!-- Purchases -->
+      <div style="font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:{{ purchasesFg }}; padding:10px 12px 5px;">Purchases</div>
+      <button class="o2o-subnav" onClick="{{ navBillsList }}" style="text-align:left; border:none; background:{{ billsBg }}; color:{{ billsFg }}; font-family:'Inter',sans-serif; font-weight:{{ billsWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer; margin-bottom:6px;">Bills</button>
+
+      <!-- Accounting -->
+      <div style="font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:{{ acctFg }}; padding:10px 12px 5px;">Accounting</div>
+      <button class="o2o-subnav" onClick="{{ navAccounts }}" style="text-align:left; border:none; background:{{ accountsBg }}; color:{{ accountsFg }}; font-family:'Inter',sans-serif; font-weight:{{ accountsWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Chart of Accounts</button>
+      <button class="o2o-subnav" onClick="{{ navJournal }}" style="text-align:left; border:none; background:{{ journalBg }}; color:{{ journalFg }}; font-family:'Inter',sans-serif; font-weight:{{ journalWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Journal Entries</button>
+      <button class="o2o-subnav" onClick="{{ navTaxcodes }}" style="text-align:left; border:none; background:{{ taxcodesBg }}; color:{{ taxcodesFg }}; font-family:'Inter',sans-serif; font-weight:{{ taxcodesWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer; margin-bottom:6px;">Tax Codes</button>
+
+      <!-- Banking -->
+      <div style="font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:{{ bankFg }}; padding:10px 12px 5px;">Banking</div>
+      <button class="o2o-subnav" onClick="{{ navBanktx }}" style="text-align:left; border:none; background:{{ banktxBg }}; color:{{ banktxFg }}; font-family:'Inter',sans-serif; font-weight:{{ banktxWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer;">Transactions</button>
+      <button class="o2o-subnav" onClick="{{ navReconcile }}" style="text-align:left; border:none; background:{{ reconcileBg }}; color:{{ reconcileFg }}; font-family:'Inter',sans-serif; font-weight:{{ reconcileWt }}; font-size:13.5px; padding:8px 12px; border-radius:8px; cursor:pointer; margin-bottom:6px;">Reconcile Account</button>
+
+      <!-- Reports -->
+      <div style="font-size:10.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:{{ reportsFg }}; padding:10px 12px 5px;">Reports</div>
+      <button class="o2o-navbtn" onClick="{{ navReportsIndex }}" style="width:100%; display:flex; align-items:center; gap:11px; padding:8px 12px; border-radius:8px; border:none; background:{{ reportsIndexBg }}; color:{{ reportsIndexFg }}; font-family:'Inter',sans-serif; font-weight:{{ reportsIndexWt }}; font-size:13.5px; cursor:pointer; text-align:left;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        All reports
+      </button>
+    </nav>
+
+    <div style="padding:14px 18px; border-top:1px solid #1e1e1e; display:flex; align-items:center; gap:11px;">
+      <div style="width:32px; height:32px; border-radius:50%; background:#F48120; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Urbanist',sans-serif; font-weight:700; font-size:13px; flex-shrink:0;">AK</div>
+      <div style="min-width:0;">
+        <div style="font-size:12.5px; font-weight:600; color:#e0e0e0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Ahmad Karim</div>
+        <div style="font-size:10.5px; color:#6a6a6a;">O2O Alliance Sdn Bhd</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0; height:100%;">
+
+    <!-- top bar -->
+    <header style="height:60px; flex-shrink:0; background:#fff; border-bottom:1px solid #E8E8E8; display:flex; align-items:center; justify-content:space-between; padding:0 32px;">
+      <div style="display:flex; align-items:center; gap:10px; background:#F9F9F9; border:1px solid #E8E8E8; border-radius:10px; padding:8px 14px; width:340px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span style="color:#A8A8A8; font-size:13.5px;">Search invoices, customers, transactions…</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <button onClick="{{ navSettings }}" style="width:36px; height:36px; border-radius:9px; background:#F9F9F9; border:1px solid #E8E8E8; display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Company settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#404040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+        <button onClick="{{ navSettings }}" style="display:flex; align-items:center; gap:9px; background:#F9F9F9; border:1px solid #E8E8E8; border-radius:10px; padding:7px 14px; cursor:pointer;">
+          <span style="font-family:'Urbanist',sans-serif; font-weight:600; font-size:13.5px; color:#000;">O2O Alliance Sdn Bhd</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#606060" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- scroll area -->
+    <main style="flex:1; overflow-y:auto; padding:36px 40px 60px;">
+
+      <!-- ─────── DASHBOARD ─────── -->
+      <sc-if value="{{ showDashboard }}" hint-placeholder-val="{{ true }}">
+      <div style="max-width:1120px; margin:0 auto;" data-screen-label="Dashboard">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:30px;">
+          <div>
+            <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:38px; letter-spacing:-1px; margin:0 0 6px;">Good morning, Ahmad</h1>
+            <p style="margin:0; color:#606060; font-size:15px;">Here's what's happening across your business today.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; background:#FEF0E3; border:1px solid #FDDBB8; border-radius:10px; padding:9px 14px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A84F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span style="font-size:13px; color:#7A3807; font-weight:500;">Financial year ends 31 Dec 2026</span>
+          </div>
+        </div>
+
+        <!-- quick actions -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:34px;">
+          <button class="o2o-quick" onClick="{{ navCreate }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px; cursor:pointer; text-align:left; transition:all 180ms;">
+            <div style="width:42px; height:42px; border-radius:11px; background:#FEF0E3; display:flex; align-items:center; justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F48120" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+              <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15.5px;">Create invoice</div>
+              <div style="font-size:12.5px; color:#808080; margin-top:2px;">Bill a customer</div>
+            </div>
+          </button>
+          <button class="o2o-quick" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px; cursor:pointer; text-align:left; transition:all 180ms;">
+            <div style="width:42px; height:42px; border-radius:11px; background:#E5F0FF; display:flex; align-items:center; justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0066CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            </div>
+            <div>
+              <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15.5px;">Create estimate</div>
+              <div style="font-size:12.5px; color:#808080; margin-top:2px;">Send a quote</div>
+            </div>
+          </button>
+          <button class="o2o-quick" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px; cursor:pointer; text-align:left; transition:all 180ms;">
+            <div style="width:42px; height:42px; border-radius:11px; background:#F3E8FF; display:flex; align-items:center; justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9D43DD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            </div>
+            <div>
+              <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15.5px;">Add transaction</div>
+              <div style="font-size:12.5px; color:#808080; margin-top:2px;">Record money moving</div>
+            </div>
+          </button>
+          <button class="o2o-quick" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px; cursor:pointer; text-align:left; transition:all 180ms;">
+            <div style="width:42px; height:42px; border-radius:11px; background:#E8F5E0; display:flex; align-items:center; justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B9E3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div>
+              <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15.5px;">Add bill</div>
+              <div style="font-size:12.5px; color:#808080; margin-top:2px;">Track what you owe</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:34px;">
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px;">
+            <div style="font-size:12.5px; color:#808080; font-weight:500; letter-spacing:0.02em;">Overdue</div>
+            <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; margin-top:8px; color:#D4302F;">RM50,220.54</div>
+            <div style="font-size:12px; color:#808080; margin-top:6px;">across 26 unpaid invoices</div>
+          </div>
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px;">
+            <div style="font-size:12.5px; color:#808080; font-weight:500; letter-spacing:0.02em;">Due within 30 days</div>
+            <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; margin-top:8px;">RM8,940.00</div>
+            <div style="font-size:12px; color:#808080; margin-top:6px;">4 invoices approaching due date</div>
+          </div>
+          <div style="background:#0d0d0d; border:1px solid #0d0d0d; border-radius:14px; padding:22px;">
+            <div style="font-size:12.5px; color:#9a9a9a; font-weight:500; letter-spacing:0.02em;">Cash on hand</div>
+            <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; margin-top:8px; color:#fff;">RM134,208.90</div>
+            <div style="font-size:12px; color:#F89640; margin-top:6px; display:flex; align-items:center; gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              +12.4% vs last month
+            </div>
+          </div>
+        </div>
+
+        <!-- two-col: overdue + cashflow -->
+        <div style="display:grid; grid-template-columns:1fr 1.15fr; gap:20px;">
+          <!-- overdue -->
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:24px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:19px; margin:0;">Overdue invoices</h3>
+              <button class="o2o-linkbtn" onClick="{{ navInvoices }}" style="border:none; background:none; color:#F48120; font-weight:600; font-size:13px; cursor:pointer;">View all</button>
+            </div>
+            <p style="margin:0 0 16px; font-size:12.5px; color:#808080;">Top balances awaiting payment</p>
+
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:flex; align-items:center; justify-content:space-between; padding:14px 12px; border-radius:10px; cursor:pointer;">
+              <div><div style="font-weight:600; font-size:14px;">Etailer Gateway (M) Sdn Bhd</div><div style="font-size:12px; color:#D4302F; margin-top:3px;">Overdue 38 months ago · #280</div></div>
+              <div style="display:flex; align-items:center; gap:8px;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px;">RM12,000.00</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+            <div style="height:1px; background:#F0F0F0;"></div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:flex; align-items:center; justify-content:space-between; padding:14px 12px; border-radius:10px; cursor:pointer;">
+              <div><div style="font-weight:600; font-size:14px;">Ong Yiew Chung</div><div style="font-size:12px; color:#D4302F; margin-top:3px;">Overdue 34 months ago · #287</div></div>
+              <div style="display:flex; align-items:center; gap:8px;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px;">RM6,000.00</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+            <div style="height:1px; background:#F0F0F0;"></div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:flex; align-items:center; justify-content:space-between; padding:14px 12px; border-radius:10px; cursor:pointer;">
+              <div><div style="font-weight:600; font-size:14px;">DJ Technology (Malaysia) Sdn Bhd</div><div style="font-size:12px; color:#D4302F; margin-top:3px;">Overdue 3 weeks ago · #564</div></div>
+              <div style="display:flex; align-items:center; gap:8px;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px;">RM5,973.50</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+            <div style="height:1px; background:#F0F0F0;"></div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:flex; align-items:center; justify-content:space-between; padding:14px 12px; border-radius:10px; cursor:pointer;">
+              <div><div style="font-weight:600; font-size:14px;">O2O eCommerce Sdn Bhd</div><div style="font-size:12px; color:#856404; margin-top:3px;">Overdue 5 days ago · #571</div></div>
+              <div style="display:flex; align-items:center; gap:8px;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px;">RM2,750.00</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+            </div>
+          </div>
+
+          <!-- cash flow -->
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:24px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:4px;">
+              <div>
+                <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:19px; margin:0;">Cash flow</h3>
+                <p style="margin:4px 0 0; font-size:12.5px; color:#808080;">Cash basis · last 12 months</p>
+              </div>
+              <div style="display:flex; gap:16px; align-items:center;">
+                <span style="display:flex; align-items:center; gap:6px; font-size:12px; color:#606060;"><span style="width:11px; height:11px; border-radius:3px; background:#6B9E3C;"></span>Inflow</span>
+                <span style="display:flex; align-items:center; gap:6px; font-size:12px; color:#606060;"><span style="width:11px; height:11px; border-radius:3px; background:#E0E0E0;"></span>Outflow</span>
+              </div>
+            </div>
+
+            <!-- chart -->
+            <div style="margin-top:20px; display:flex; gap:9px; align-items:stretch;">
+              <div style="display:flex; flex-direction:column; justify-content:space-between; font-size:10px; color:#A8A8A8; text-align:right; padding-bottom:22px; width:38px; flex-shrink:0;">
+                <span>120K</span><span>60K</span><span>0</span><span>-60K</span>
+              </div>
+              <div style="flex:1; position:relative;">
+                <!-- baseline -->
+                <div style="position:absolute; left:0; right:0; top:100px; height:1px; background:#E0E0E0;"></div>
+                <div style="display:flex; align-items:stretch; gap:6px; height:200px;">
+                  <!-- each month column -->
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:96px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:78px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Jul</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:34px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:28px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Aug</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:30px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:26px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Sep</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:38px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:20px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Oct</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:60px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:30px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Nov</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:30px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:32px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Dec</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:26px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:28px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Jan</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:70px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:52px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Feb</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:44px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:22px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Mar</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:50px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:24px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Apr</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:46px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:20px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">May</div>
+                  </div>
+                  <div style="flex:1; display:flex; flex-direction:column;">
+                    <div style="height:100px; display:flex; align-items:flex-end;"><div style="width:100%; height:22px; background:#6B9E3C; border-radius:4px 4px 0 0;"></div></div>
+                    <div style="height:100px; display:flex; align-items:flex-start;"><div style="width:100%; height:58px; background:#E0E0E0; border-radius:0 0 4px 4px;"></div></div>
+                    <div style="text-align:center; font-size:9.5px; color:#A8A8A8; margin-top:6px;">Jun</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── INVOICES LIST ─────── -->
+      <sc-if value="{{ showInvoices }}" hint-placeholder-val="{{ true }}">
+      <div style="max-width:1180px; margin:0 auto;" data-screen-label="Invoices">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Invoices</h1>
+          <button class="o2o-navbtn" onClick="{{ navCreate }}" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create an invoice
+          </button>
+        </div>
+
+        <!-- summary -->
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:26px 30px; display:grid; grid-template-columns:1fr 1fr 1fr; margin-bottom:26px;">
+          <div style="border-right:1px solid #EEE; padding-right:24px;">
+            <div style="font-size:12.5px; color:#808080; font-weight:500;">Overdue</div>
+            <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:28px; margin-top:6px; color:#D4302F;">RM50,220.54 <span style="font-size:13px; color:#A8A8A8; font-weight:600;">MYR</span></div>
+            <div style="font-size:12px; color:#A8A8A8; margin-top:6px;">Last updated a moment ago</div>
+          </div>
+          <div style="border-right:1px solid #EEE; padding:0 24px;">
+            <div style="font-size:12.5px; color:#808080; font-weight:500;">Due within next 30 days</div>
+            <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:28px; margin-top:6px;">RM8,940.00 <span style="font-size:13px; color:#A8A8A8; font-weight:600;">MYR</span></div>
+            <div style="font-size:12px; color:#A8A8A8; margin-top:6px;">4 invoices approaching</div>
+          </div>
+          <div style="padding-left:24px;">
+            <div style="font-size:12.5px; color:#808080; font-weight:500;">Average time to get paid</div>
+            <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:28px; margin-top:6px;">42 <span style="font-size:13px; color:#A8A8A8; font-weight:600;">days</span></div>
+            <div style="font-size:12px; color:#A8A8A8; margin-top:6px;">Down from 51 last quarter</div>
+          </div>
+        </div>
+
+        <!-- filters -->
+        <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+          <div style="position:relative; flex:1; min-width:180px;">
+            <select style="width:100%; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; color:#404040; background:#fff; cursor:pointer; appearance:none;"><option>All customers</option><option>Etailer Gateway (M) Sdn Bhd</option><option>Ong Yiew Chung</option></select>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:12px; top:14px; pointer-events:none;"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div style="position:relative; flex:1; min-width:150px;">
+            <select style="width:100%; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; color:#404040; background:#fff; cursor:pointer; appearance:none;"><option>All statuses</option><option>Overdue</option><option>Draft</option><option>Paid</option></select>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:12px; top:14px; pointer-events:none;"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <input placeholder="From" style="flex:1; min-width:120px; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; color:#404040;" />
+          <input placeholder="To" style="flex:1; min-width:120px; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; color:#404040;" />
+          <div style="position:relative; flex:1.3; min-width:180px;">
+            <input placeholder="Enter invoice #" style="width:100%; height:42px; padding:0 40px 0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; color:#404040;" />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" style="position:absolute; right:13px; top:13px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+        </div>
+
+        <!-- tabs -->
+        <div style="display:flex; gap:4px; background:#F3F3F3; border-radius:11px; padding:4px; width:fit-content; margin-bottom:8px;">
+          <button onClick="{{ setUnpaid }}" style="display:flex; align-items:center; gap:8px; padding:9px 18px; border:none; border-radius:8px; background:{{ tabUnpaidBg }}; box-shadow:{{ tabUnpaidShadow }}; color:{{ tabUnpaidFg }}; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">Unpaid <span style="background:{{ tabUnpaidPillBg }}; color:{{ tabUnpaidPillFg }}; border-radius:9999px; padding:1px 8px; font-size:12px;">26</span></button>
+          <button onClick="{{ setDraft }}" style="display:flex; align-items:center; gap:8px; padding:9px 18px; border:none; border-radius:8px; background:{{ tabDraftBg }}; box-shadow:{{ tabDraftShadow }}; color:{{ tabDraftFg }}; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">Draft <span style="background:{{ tabDraftPillBg }}; color:{{ tabDraftPillFg }}; border-radius:9999px; padding:1px 8px; font-size:12px;">2</span></button>
+          <button onClick="{{ setAll }}" style="padding:9px 18px; border:none; border-radius:8px; background:{{ tabAllBg }}; box-shadow:{{ tabAllShadow }}; color:{{ tabAllFg }}; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">All invoices</button>
+        </div>
+
+        <!-- table -->
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Status</span><span>Due</span><span>Date</span><span>Number</span><span>Customer</span><span style="text-align:right;">Amount due</span><span style="text-align:right;">Actions</span>
+          </div>
+
+          <sc-if value="{{ showUnpaid }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Overdue</span></span>
+              <span style="color:#D4302F;">2129 days ago</span><span style="color:#606060;">2020-08-21</span><span style="color:#606060;">280</span>
+              <span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM4,360.00</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Send reminder</span></span>
+            </div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Overdue</span></span>
+              <span style="color:#D4302F;">2088 days ago</span><span style="color:#606060;">2020-10-01</span><span style="color:#606060;">287</span>
+              <span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM5,398.00</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Send reminder</span></span>
+            </div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Overdue</span></span>
+              <span style="color:#D4302F;">2015 days ago</span><span style="color:#606060;">2020-11-27</span><span style="color:#606060;">292</span>
+              <span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM334.37</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Send reminder</span></span>
+            </div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Overdue</span></span>
+              <span style="color:#D4302F;">1820 days ago</span><span style="color:#606060;">2021-06-25</span><span style="color:#606060;">312</span>
+              <span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM307.80</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Send reminder</span></span>
+            </div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Overdue</span></span>
+              <span style="color:#D4302F;">1146 days ago</span><span style="color:#606060;">2023-05-15</span><span style="color:#606060;">564</span>
+              <span style="font-weight:500;">Ong Yiew Chung</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM12,000.00</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Send reminder</span></span>
+            </div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#FEF3E0; color:#8A5A00; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Due soon</span></span>
+              <span style="color:#856404;">in 8 days</span><span style="color:#606060;">2026-06-10</span><span style="color:#606060;">571</span>
+              <span style="font-weight:500;">O2O eCommerce Sdn Bhd</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM2,750.00</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Send reminder</span></span>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ showDraftList }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div class="o2o-row" onClick="{{ navCreate }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#F3F3F3; color:#606060; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Draft</span></span>
+              <span style="color:#A8A8A8;">—</span><span style="color:#606060;">2026-07-01</span><span style="color:#606060;">573</span>
+              <span style="font-weight:500;">DJ Technology (Malaysia) Sdn Bhd</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM3,200.00</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Edit</span></span>
+            </div>
+            <div class="o2o-row" onClick="{{ navCreate }}" style="display:grid; grid-template-columns:120px 150px 130px 90px 1fr 130px 120px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+              <span><span style="background:#F3F3F3; color:#606060; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Draft</span></span>
+              <span style="color:#A8A8A8;">—</span><span style="color:#606060;">2026-07-03</span><span style="color:#606060;">574</span>
+              <span style="font-weight:500;">Ong Yiew Chung</span>
+              <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM980.00</span>
+              <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Edit</span></span>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── INVOICE DETAIL ─────── -->
+      <sc-if value="{{ showDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:960px; margin:0 auto;" data-screen-label="Invoice detail">
+        <button class="o2o-linkbtn" onClick="{{ navInvoices }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; font-weight:500; cursor:pointer; margin-bottom:18px; padding:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to invoices
+        </button>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:32px; letter-spacing:-0.6px; margin:0;">Tax Invoice #280</h1>
+          <div style="display:flex; gap:10px;">
+            <button style="height:42px; padding:0 18px; display:flex; align-items:center; gap:7px; background:#fff; border:1.5px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; color:#404040; cursor:pointer;">More actions <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="o2o-navbtn" onClick="{{ navCreate }}" style="height:42px; padding:0 18px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">Create another invoice</button>
+          </div>
+        </div>
+
+        <!-- status strip -->
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:24px 28px; display:grid; grid-template-columns:auto 1fr auto auto; gap:40px; align-items:center; margin-bottom:22px;">
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Status</div><span style="background:#FDECEA; color:#B4302F; font-size:13px; font-weight:600; padding:5px 14px; border-radius:9999px;">Overdue</span></div>
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Customer</div><span style="color:#F48120; font-weight:600; font-size:16px;">Etailer Gateway (M) Sdn Bhd</span></div>
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Amount due</div><span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:20px;">RM4,360.00</span></div>
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Due on</div><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">4 Sep 2020</span></div>
+        </div>
+
+        <!-- timeline -->
+        <div style="display:flex; flex-direction:column;">
+          <!-- create -->
+          <div style="display:flex; gap:18px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#FEF0E3; border:2px solid #F89640; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D96910" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div style="width:2px; flex:1; background:#E8E8E8; margin:4px 0;"></div>
+            </div>
+            <div style="flex:1; background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px 24px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+              <div><h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px; margin:0 0 6px;">Create</h3><p style="margin:0; font-size:13.5px; color:#606060;"><strong style="color:#000;">Created</strong> on 21 August 2020 at 3:02 PM GMT+8</p></div>
+              <button style="height:40px; padding:0 18px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13.5px; color:#404040; cursor:pointer;">Edit invoice</button>
+            </div>
+          </div>
+          <!-- send -->
+          <div style="display:flex; gap:18px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#E5F0FF; border:2px solid #4FC3F7; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0066CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+              <div style="width:2px; flex:1; background:#E8E8E8; margin:4px 0;"></div>
+            </div>
+            <div style="flex:1; background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px 24px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+              <div><h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px; margin:0 0 6px;">Send</h3><p style="margin:0 0 3px; font-size:13.5px; color:#606060;"><strong style="color:#000;">Last sent</strong> with O2O Books on 28 August 2020</p><p style="margin:0; font-size:13.5px; color:#606060;"><strong style="color:#000;">Last viewed by customer</strong> on 1 October 2020 at 12:56 PM</p></div>
+              <button class="o2o-navbtn" style="height:40px; padding:0 18px; background:#0d0d0d; color:#fff; border:none; border-radius:9px; font-weight:600; font-size:13.5px; cursor:pointer; white-space:nowrap;">Resend invoice</button>
+            </div>
+          </div>
+          <!-- manage payments -->
+          <div style="display:flex; gap:18px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#E8F5E0; border:2px solid #6B9E3C; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4A7A1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            </div>
+            <div style="flex:1; background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px 24px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px; margin:0;">Manage payments</h3>
+                <button class="o2o-navbtn" style="height:40px; padding:0 18px; background:#F48120; color:#fff; border:none; border-radius:9px; font-weight:600; font-size:13.5px; cursor:pointer;">Record a payment</button>
+              </div>
+              <p style="margin:0 0 14px; font-size:13.5px; color:#404040;"><strong>Amount due: RM4,360.00</strong> — your invoice is awaiting payment.</p>
+              <div style="background:#FAFAFA; border:1px solid #EEE; border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#856404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                <span style="font-size:13px; color:#606060;"><strong style="color:#000;">3 reminders</strong> were sent. The last reminder was sent on 18 June 2021. <span class="o2o-linkbtn" style="color:#F48120; font-weight:600; cursor:pointer;">Send a reminder now.</span></span>
+              </div>
+              <div style="font-size:12px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Payments received</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:#E8F5E0; border-radius:10px;">
+                <span style="font-size:13.5px; color:#3A6B1A;"><strong>30 June 2022</strong> — a payment was recorded</span>
+                <span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; color:#3A6B1A;">RM1,038.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── CREATE INVOICE ─────── -->
+      <sc-if value="{{ showCreate }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:900px; margin:0 auto;" data-screen-label="Create invoice">
+        <button class="o2o-linkbtn" onClick="{{ navInvoices }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; font-weight:500; cursor:pointer; margin-bottom:18px; padding:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to invoices
+        </button>
+
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:16px; padding:40px 44px; box-shadow:0 4px 16px rgba(0,0,0,0.06);">
+          <!-- invoice header -->
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; padding-bottom:28px; border-bottom:1px solid #EEE; margin-bottom:28px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#F48120; display:flex; align-items:center; justify-content:center;"><div style="width:19px; height:19px; border-radius:50%; background:#fff;"></div></div>
+              <div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:20px;">O2O Alliance Sdn Bhd</div><div style="font-size:12.5px; color:#808080; margin-top:2px;">Reg. 201801023456 (1287654-A) · Kuala Lumpur</div></div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:26px; letter-spacing:-0.5px;">TAX INVOICE</div>
+              <div style="font-size:13px; color:#808080; margin-top:4px;">#575 · Draft</div>
+            </div>
+          </div>
+
+          <!-- bill to + meta -->
+          <div style="display:grid; grid-template-columns:1fr 320px; gap:32px; margin-bottom:30px;">
+            <div>
+              <div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Bill to</div>
+              <div style="position:relative;">
+                <select style="width:100%; height:44px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:14px; color:#000; background:#fff; cursor:pointer; appearance:none;"><option>Etailer Gateway (M) Sdn Bhd</option><option>Ong Yiew Chung</option><option>DJ Technology (Malaysia) Sdn Bhd</option><option>+ Add a new customer</option></select>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:12px; top:15px; pointer-events:none;"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+              <div style="margin-top:10px; font-size:13px; color:#606060; line-height:1.6;">Lot 12, Jalan Teknologi 3/5<br/>Kota Damansara, 47810 Selangor</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <span style="font-size:13px; color:#606060; font-weight:500;">Invoice date</span>
+                <input value="2026-07-04" style="width:170px; height:40px; padding:0 12px; border:1px solid #D0D0D0; border-radius:9px; font-family:'Inter',sans-serif; font-size:13.5px; color:#000;" />
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <span style="font-size:13px; color:#606060; font-weight:500;">Payment due</span>
+                <input value="2026-08-03" style="width:170px; height:40px; padding:0 12px; border:1px solid #D0D0D0; border-radius:9px; font-family:'Inter',sans-serif; font-size:13.5px; color:#000;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- line items -->
+          <div style="border:1px solid #EEE; border-radius:12px; overflow:hidden; margin-bottom:20px;">
+            <div style="display:grid; grid-template-columns:1fr 90px 130px 130px; padding:13px 18px; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.03em;">
+              <span>Item &amp; description</span><span style="text-align:center;">Qty</span><span style="text-align:right;">Price</span><span style="text-align:right;">Amount</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 90px 130px 130px; padding:16px 18px; align-items:center; border-top:1px solid #F2F2F2;">
+              <div><div style="font-weight:600; font-size:14px;">Digital marketing retainer</div><div style="font-size:12.5px; color:#808080; margin-top:2px;">Monthly campaign management</div></div>
+              <span style="text-align:center; font-size:14px;">1</span><span style="text-align:right; font-size:14px;">RM3,500.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; font-size:14px;">RM3,500.00</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 90px 130px 130px; padding:16px 18px; align-items:center; border-top:1px solid #F2F2F2;">
+              <div><div style="font-weight:600; font-size:14px;">Landing page design</div><div style="font-size:12.5px; color:#808080; margin-top:2px;">2 responsive layouts</div></div>
+              <span style="text-align:center; font-size:14px;">2</span><span style="text-align:right; font-size:14px;">RM600.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; font-size:14px;">RM1,200.00</span>
+            </div>
+            <button style="width:100%; text-align:left; padding:14px 18px; border:none; border-top:1px dashed #E0E0E0; background:#FAFAFA; color:#F48120; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:7px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add a line item</button>
+          </div>
+
+          <!-- totals -->
+          <div style="display:flex; justify-content:flex-end; margin-bottom:30px;">
+            <div style="width:300px; display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; justify-content:space-between; font-size:13.5px; color:#606060;"><span>Subtotal</span><span style="font-family:'Urbanist',sans-serif; font-weight:600; color:#000;">RM4,700.00</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:13.5px; color:#606060;"><span>SST (8%)</span><span style="font-family:'Urbanist',sans-serif; font-weight:600; color:#000;">RM376.00</span></div>
+              <div style="height:1px; background:#EEE; margin:4px 0;"></div>
+              <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Total due</span><span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:22px; color:#F48120;">RM5,076.00</span></div>
+            </div>
+          </div>
+
+          <!-- actions -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:24px; border-top:1px solid #EEE;">
+            <button onClick="{{ navInvoices }}" style="height:44px; padding:0 20px; background:#fff; border:1.5px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; color:#404040; cursor:pointer;">Save as draft</button>
+            <div style="display:flex; gap:10px;">
+              <button onClick="{{ navInvoices }}" style="height:44px; padding:0 20px; background:#fff; border:1.5px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; color:#404040; cursor:pointer;">Preview</button>
+              <button class="o2o-navbtn" onClick="{{ navDetail }}" style="height:44px; padding:0 24px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30); display:flex; align-items:center; gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Approve &amp; send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── ESTIMATES ─────── -->
+      <sc-if value="{{ showEstimates }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1120px; margin:0 auto;" data-screen-label="Estimates">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Estimates</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create an estimate
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:120px 130px 130px 100px 1fr 130px 150px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Status</span><span>Date</span><span>Expires</span><span>Number</span><span>Customer</span><span style="text-align:right;">Amount</span><span style="text-align:right;">Actions</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 130px 130px 100px 1fr 130px 150px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span><span style="background:#F3F3F3; color:#606060; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Draft</span></span>
+            <span style="color:#606060;">2026-06-20</span><span style="color:#606060;">2026-07-20</span><span style="color:#606060;">EST-101</span>
+            <span style="font-weight:500;">Ong Yiew Chung</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM2,400.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Convert to invoice</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 130px 130px 100px 1fr 130px 150px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span><span style="background:#E5F0FF; color:#004EA3; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Sent</span></span>
+            <span style="color:#606060;">2026-06-15</span><span style="color:#606060;">2026-07-15</span><span style="color:#606060;">EST-098</span>
+            <span style="font-weight:500;">DJ Technology (Malaysia) Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM7,850.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Convert to invoice</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 130px 130px 100px 1fr 130px 150px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span><span style="background:#E8F5E0; color:#3A6B1A; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Accepted</span></span>
+            <span style="color:#606060;">2026-05-30</span><span style="color:#606060;">2026-06-30</span><span style="color:#606060;">EST-094</span>
+            <span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM3,120.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Convert to invoice</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 130px 130px 100px 1fr 130px 150px; padding:16px 24px; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Expired</span></span>
+            <span style="color:#606060;">2026-04-10</span><span style="color:#606060;">2026-05-10</span><span style="color:#606060;">EST-081</span>
+            <span style="font-weight:500;">O2O eCommerce Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,050.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Convert to invoice</span></span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── RECURRING INVOICES ─────── -->
+      <sc-if value="{{ showRecurring }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1120px; margin:0 auto;" data-screen-label="Recurring invoices">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Recurring Invoices</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New recurring invoice
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:110px 130px 150px 1fr 130px 110px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Status</span><span>Frequency</span><span>Next invoice</span><span>Customer</span><span style="text-align:right;">Amount</span><span style="text-align:right;">Actions</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:110px 130px 150px 1fr 130px 110px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span><span style="background:#E8F5E0; color:#3A6B1A; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Active</span></span>
+            <span style="color:#606060;">Monthly</span><span style="color:#606060;">2026-08-01</span>
+            <span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM3,500.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600; cursor:pointer;">Pause</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:110px 130px 150px 1fr 130px 110px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span><span style="background:#E8F5E0; color:#3A6B1A; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Active</span></span>
+            <span style="color:#606060;">Monthly</span><span style="color:#606060;">2026-07-15</span>
+            <span style="font-weight:500;">O2O eCommerce Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM980.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600; cursor:pointer;">Pause</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:110px 130px 150px 1fr 130px 110px; padding:16px 24px; align-items:center; font-size:13.5px;">
+            <span><span style="background:#F3F3F3; color:#606060; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Paused</span></span>
+            <span style="color:#606060;">Quarterly</span><span style="color:#A8A8A8;">—</span>
+            <span style="font-weight:500;">DJ Technology (Malaysia) Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM6,200.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600; cursor:pointer;">Resume</span></span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── CUSTOMER STATEMENTS ─────── -->
+      <sc-if value="{{ showStatements }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:900px; margin:0 auto;" data-screen-label="Customer statements">
+        <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0 0 22px;">Customer Statements</h1>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:24px; margin-bottom:20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+          <div style="position:relative; flex:1; min-width:240px;">
+            <select style="width:100%; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:14px; color:#000; background:#fff; appearance:none;"><option>Etailer Gateway (M) Sdn Bhd</option><option>Ong Yiew Chung</option></select>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:12px; top:14px; pointer-events:none;"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <input value="2026-01-01" style="width:150px; height:42px; padding:0 12px; border:1px solid #D0D0D0; border-radius:10px; font-size:13.5px;" />
+          <span style="color:#A8A8A8;">to</span>
+          <input value="2026-07-04" style="width:150px; height:42px; padding:0 12px; border:1px solid #D0D0D0; border-radius:10px; font-size:13.5px;" />
+          <button class="o2o-navbtn" style="height:42px; padding:0 18px; background:#0d0d0d; color:#fff; border:none; border-radius:10px; font-weight:600; font-size:13.5px; cursor:pointer;">Send statement</button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:28px 30px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:20px; border-bottom:1px solid #EEE; margin-bottom:6px;">
+            <div><div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px;">Etailer Gateway (M) Sdn Bhd</div><div style="font-size:12.5px; color:#808080; margin-top:4px;">Statement period: 1 Jan – 4 Jul 2026</div></div>
+            <div style="text-align:right;"><div style="font-size:12px; color:#808080;">Balance due</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:22px; color:#D4302F;">RM10,092.37</div></div>
+          </div>
+          <div style="display:grid; grid-template-columns:110px 1fr 110px 130px 130px; padding:12px 4px; font-size:11.5px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.03em; border-bottom:1px solid #F2F2F2;">
+            <span>Date</span><span>Description</span><span style="text-align:right;">Charges</span><span style="text-align:right;">Payments</span><span style="text-align:right;">Balance</span>
+          </div>
+          <div style="display:grid; grid-template-columns:110px 1fr 110px 130px 130px; padding:13px 4px; font-size:13.5px; border-bottom:1px solid #F7F7F7;"><span style="color:#606060;">2020-08-21</span><span>Tax Invoice #280</span><span style="text-align:right;">RM4,360.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-weight:600;">RM4,360.00</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 110px 130px 130px; padding:13px 4px; font-size:13.5px; border-bottom:1px solid #F7F7F7;"><span style="color:#606060;">2020-10-01</span><span>Tax Invoice #287</span><span style="text-align:right;">RM5,398.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-weight:600;">RM9,758.00</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 110px 130px 130px; padding:13px 4px; font-size:13.5px; border-bottom:1px solid #F7F7F7;"><span style="color:#606060;">2022-06-30</span><span>Payment received — Invoice #280</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; color:#3A6B1A;">RM1,038.00</span><span style="text-align:right; font-weight:600;">RM8,720.00</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 110px 130px 130px; padding:13px 4px; font-size:13.5px;"><span style="color:#606060;">2021-06-25</span><span>Tax Invoice #312</span><span style="text-align:right;">RM307.80</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-weight:600;">RM10,092.37</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── CUSTOMERS & VENDORS (list) ─────── -->
+      <sc-if value="{{ showPartiesList }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1120px; margin:0 auto;" data-screen-label="Customers and vendors">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Customers &amp; Vendors</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add new
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Name</span><span>Type</span><span>Email</span><span style="text-align:right;">Balance</span><span></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navPartiesDetail }}" style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span style="font-weight:600;">Etailer Gateway (M) Sdn Bhd</span><span><span style="background:#E5F0FF; color:#004EA3; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Customer</span></span><span style="color:#606060;">accounts@etailergw.my</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#D4302F;">RM10,092.37</span><span style="text-align:right;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navPartiesDetail }}" style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span style="font-weight:600;">Ong Yiew Chung</span><span><span style="background:#E5F0FF; color:#004EA3; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Customer</span></span><span style="color:#606060;">ong.yc@gmail.com</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#D4302F;">RM18,000.00</span><span style="text-align:right;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navPartiesDetail }}" style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span style="font-weight:600;">DJ Technology (Malaysia) Sdn Bhd</span><span><span style="background:#E5F0FF; color:#004EA3; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Customer</span></span><span style="color:#606060;">finance@djtech.my</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM9,173.50</span><span style="text-align:right;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navPartiesDetail }}" style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span style="font-weight:600;">O2O eCommerce Sdn Bhd</span><span><span style="background:#E5F0FF; color:#004EA3; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Customer</span></span><span style="color:#606060;">ap@o2oecommerce.my</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM2,750.00</span><span style="text-align:right;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navPartiesDetail }}" style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span style="font-weight:600;">Selangor Print Supplies Sdn Bhd</span><span><span style="background:#F3E8FF; color:#7A2FBF; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Vendor</span></span><span style="color:#606060;">orders@selangorprint.my</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM4,220.00</span><span style="text-align:right;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navPartiesDetail }}" style="display:grid; grid-template-columns:1fr 110px 1.3fr 150px 60px; padding:16px 24px; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span style="font-weight:600;">Kuala Lumpur Office Rentals</span><span><span style="background:#F3E8FF; color:#7A2FBF; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Vendor</span></span><span style="color:#606060;">billing@klor.my</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,800.00</span><span style="text-align:right;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8A8A8" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── CUSTOMER DETAIL / PROFILE ─────── -->
+      <sc-if value="{{ showPartiesDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1000px; margin:0 auto;" data-screen-label="Customer profile">
+        <button class="o2o-linkbtn" onClick="{{ navPartiesList }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; font-weight:500; cursor:pointer; margin-bottom:18px; padding:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to customers &amp; vendors
+        </button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:56px; height:56px; border-radius:50%; background:#0066CC; display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Urbanist',sans-serif; font-weight:700; font-size:20px;">EG</div>
+            <div><h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:26px; margin:0;">Etailer Gateway (M) Sdn Bhd</h1><span style="background:#E5F0FF; color:#004EA3; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Customer</span></div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button style="height:42px; padding:0 18px; background:#fff; border:1.5px solid #D0D0D0; border-radius:10px; font-weight:600; font-size:13.5px; color:#404040; cursor:pointer;">Edit profile</button>
+            <button class="o2o-navbtn" onClick="{{ navCreate }}" style="height:42px; padding:0 18px; background:#F48120; color:#fff; border:none; border-radius:10px; font-weight:600; font-size:13.5px; cursor:pointer;">Create invoice</button>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;">
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Total invoiced</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:26px; margin-top:6px;">RM48,650.00</div></div>
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Outstanding balance</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:26px; margin-top:6px; color:#D4302F;">RM10,092.37</div></div>
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Average days to pay</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:26px; margin-top:6px;">51</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1.4fr; gap:16px;">
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px;">
+            <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px; margin:0 0 14px;">Contact info</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; font-size:13.5px;">
+              <div style="color:#606060;">Email<br/><span style="color:#000; font-weight:500;">accounts@etailergw.my</span></div>
+              <div style="color:#606060;">Phone<br/><span style="color:#000; font-weight:500;">+60 3-7890 1234</span></div>
+              <div style="color:#606060;">Address<br/><span style="color:#000; font-weight:500;">Lot 8, Jalan Kerja Baru, 50200 Kuala Lumpur</span></div>
+              <div style="color:#606060;">Reg. no.<br/><span style="color:#000; font-weight:500;">201401234567 (1123456-A)</span></div>
+            </div>
+          </div>
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px;">
+            <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px; margin:0 0 14px;">Recent activity</h3>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:flex; justify-content:space-between; padding:12px 10px; border-radius:9px; cursor:pointer;"><span>Tax Invoice #280</span><span style="color:#D4302F; font-weight:600;">RM4,360.00 overdue</span></div>
+            <div style="height:1px; background:#F2F2F2;"></div>
+            <div class="o2o-row" onClick="{{ navDetail }}" style="display:flex; justify-content:space-between; padding:12px 10px; border-radius:9px; cursor:pointer;"><span>Tax Invoice #287</span><span style="color:#D4302F; font-weight:600;">RM5,398.00 overdue</span></div>
+            <div style="height:1px; background:#F2F2F2;"></div>
+            <div class="o2o-row" style="display:flex; justify-content:space-between; padding:12px 10px; border-radius:9px;"><span>Payment received</span><span style="color:#3A6B1A; font-weight:600;">RM1,038.00</span></div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── PRODUCTS & SERVICES ─────── -->
+      <sc-if value="{{ showItems }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1120px; margin:0 auto;" data-screen-label="Products and services">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Products &amp; Services</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add item
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1fr 110px 140px 140px 130px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Name</span><span>Type</span><span style="text-align:right;">Sale price</span><span style="text-align:right;">Cost price</span><span style="text-align:right;">Tax code</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:1fr 110px 140px 140px 130px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="font-weight:600;">Digital marketing retainer</span><span style="color:#606060;">Service</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM3,500.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; color:#606060;">SST 8%</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:1fr 110px 140px 140px 130px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="font-weight:600;">Landing page design</span><span style="color:#606060;">Service</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM600.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; color:#606060;">SST 8%</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:1fr 110px 140px 140px 130px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="font-weight:600;">Logo design package</span><span style="color:#606060;">Service</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,200.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; color:#606060;">SST 8%</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:1fr 110px 140px 140px 130px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="font-weight:600;">Office chair (ergonomic)</span><span style="color:#606060;">Product</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM450.00</span><span style="text-align:right;">RM320.00</span><span style="text-align:right; color:#606060;">SST 8%</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:1fr 110px 140px 140px 130px; padding:16px 24px; align-items:center; font-size:13.5px;">
+            <span style="font-weight:600;">Printer paper (A4, ream)</span><span style="color:#606060;">Product</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM18.00</span><span style="text-align:right;">RM12.00</span><span style="text-align:right; color:#606060;">Exempt</span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── BILLS (list) ─────── -->
+      <sc-if value="{{ showBillsList }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1180px; margin:0 auto;" data-screen-label="Bills">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Bills</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add a bill
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:26px 30px; display:grid; grid-template-columns:1fr 1fr 1fr; margin-bottom:26px;">
+          <div style="border-right:1px solid #EEE; padding-right:24px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Overdue</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:28px; margin-top:6px; color:#D4302F;">RM4,220.00</div></div>
+          <div style="border-right:1px solid #EEE; padding:0 24px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Due within 30 days</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:28px; margin-top:6px;">RM1,800.00</div></div>
+          <div style="padding-left:24px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Total unpaid</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:28px; margin-top:6px;">RM6,020.00</div></div>
+        </div>
+        <div style="display:flex; gap:4px; background:#F3F3F3; border-radius:11px; padding:4px; width:fit-content; margin-bottom:20px;">
+          <button style="padding:9px 18px; border:none; border-radius:8px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.12); color:#0d0d0d; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">Unpaid <span style="background:#FEF0E3; color:#A84F0B; border-radius:9999px; padding:1px 8px; font-size:12px;">2</span></button>
+          <button style="padding:9px 18px; border:none; border-radius:8px; background:transparent; color:#808080; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">Paid</button>
+          <button style="padding:9px 18px; border:none; border-radius:8px; background:transparent; color:#808080; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">All bills</button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:120px 140px 120px 100px 1fr 130px 150px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Status</span><span>Due</span><span>Date</span><span>Number</span><span>Vendor</span><span style="text-align:right;">Amount due</span><span style="text-align:right;">Actions</span>
+          </div>
+          <div class="o2o-row" onClick="{{ navBillsDetail }}" style="display:grid; grid-template-columns:120px 140px 120px 100px 1fr 130px 150px; padding:16px 24px; border-bottom:1px solid #F2F2F2; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span><span style="background:#FDECEA; color:#B4302F; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Overdue</span></span>
+            <span style="color:#D4302F;">12 days ago</span><span style="color:#606060;">2026-05-15</span><span style="color:#606060;">BILL-204</span>
+            <span style="font-weight:500;">Selangor Print Supplies Sdn Bhd</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM4,220.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Record payment</span></span>
+          </div>
+          <div class="o2o-row" onClick="{{ navBillsDetail }}" style="display:grid; grid-template-columns:120px 140px 120px 100px 1fr 130px 150px; padding:16px 24px; align-items:center; cursor:pointer; font-size:13.5px;">
+            <span><span style="background:#FEF3E0; color:#8A5A00; font-size:11.5px; font-weight:600; padding:3px 10px; border-radius:9999px;">Due soon</span></span>
+            <span style="color:#856404;">in 11 days</span><span style="color:#606060;">2026-07-01</span><span style="color:#606060;">BILL-207</span>
+            <span style="font-weight:500;">Kuala Lumpur Office Rentals</span>
+            <span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,800.00</span>
+            <span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600;">Record payment</span></span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── BILL DETAIL ─────── -->
+      <sc-if value="{{ showBillsDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:960px; margin:0 auto;" data-screen-label="Bill detail">
+        <button class="o2o-linkbtn" onClick="{{ navBillsList }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; font-weight:500; cursor:pointer; margin-bottom:18px; padding:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to bills
+        </button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:32px; letter-spacing:-0.6px; margin:0;">Bill #BILL-204</h1>
+          <div style="display:flex; gap:10px;">
+            <button style="height:42px; padding:0 18px; background:#fff; border:1.5px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; color:#404040; cursor:pointer;">Edit bill</button>
+            <button class="o2o-navbtn" style="height:42px; padding:0 18px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; cursor:pointer;">Record a payment</button>
+          </div>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:24px 28px; display:grid; grid-template-columns:auto 1fr auto auto; gap:40px; align-items:center; margin-bottom:22px;">
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Status</div><span style="background:#FDECEA; color:#B4302F; font-size:13px; font-weight:600; padding:5px 14px; border-radius:9999px;">Overdue</span></div>
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Vendor</div><span style="color:#F48120; font-weight:600; font-size:16px;">Selangor Print Supplies Sdn Bhd</span></div>
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Amount owed</div><span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:20px;">RM4,220.00</span></div>
+          <div><div style="font-size:11.5px; color:#808080; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;">Due on</div><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">22 June 2026</span></div>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+          <div style="display:flex; gap:18px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#FEF0E3; border:2px solid #F89640; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#D96910" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <div style="width:2px; flex:1; background:#E8E8E8; margin:4px 0;"></div>
+            </div>
+            <div style="flex:1; background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px 24px; margin-bottom:16px;">
+              <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px; margin:0 0 6px;">Bill entered</h3>
+              <p style="margin:0; font-size:13.5px; color:#606060;"><strong style="color:#000;">Entered</strong> on 15 May 2026, terms Net 30</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:18px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#E5F0FF; border:2px solid #4FC3F7; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0066CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div style="width:2px; flex:1; background:#E8E8E8; margin:4px 0;"></div>
+            </div>
+            <div style="flex:1; background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px 24px; margin-bottom:16px;">
+              <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px; margin:0 0 6px;">Approved</h3>
+              <p style="margin:0; font-size:13.5px; color:#606060;"><strong style="color:#000;">Approved</strong> by Ahmad Karim on 16 May 2026</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:18px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div style="width:44px; height:44px; border-radius:50%; background:#E8F5E0; border:2px solid #6B9E3C; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#4A7A1F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            </div>
+            <div style="flex:1; background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:22px 24px;">
+              <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:18px; margin:0 0 14px;">Payment</h3>
+              <p style="margin:0; font-size:13.5px; color:#404040;"><strong>Amount owed: RM4,220.00</strong> — payment not yet made.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── CHART OF ACCOUNTS ─────── -->
+      <sc-if value="{{ showAccounts }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1000px; margin:0 auto;" data-screen-label="Chart of accounts">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Chart of Accounts</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New account
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Code</span><span>Name</span><span>Type</span><span style="text-align:right;">Balance</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">1000</span><span style="font-weight:600;">Cash at Bank</span><span style="color:#606060;">Asset</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM134,208.90</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">1100</span><span style="font-weight:600;">Accounts Receivable</span><span style="color:#606060;">Asset</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM50,220.54</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">2000</span><span style="font-weight:600;">Accounts Payable</span><span style="color:#606060;">Liability</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM6,020.00</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">3000</span><span style="font-weight:600;">Owner's Equity</span><span style="color:#606060;">Equity</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM80,000.00</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">4000</span><span style="font-weight:600;">Sales Revenue</span><span style="color:#606060;">Income</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM212,400.00</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">5000</span><span style="font-weight:600;">Cost of Goods Sold</span><span style="color:#606060;">Expense</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM64,300.00</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:90px 1fr 150px 150px; padding:15px 24px; align-items:center; font-size:13.5px;"><span style="color:#606060;">6000</span><span style="font-weight:600;">Operating Expenses</span><span style="color:#606060;">Expense</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM38,150.00</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── JOURNAL ENTRIES ─────── -->
+      <sc-if value="{{ showJournal }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1080px; margin:0 auto;" data-screen-label="Journal entries">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Journal Entries</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New journal entry
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:120px 110px 1fr 130px 130px 100px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Date</span><span>Reference</span><span>Memo</span><span style="text-align:right;">Debit</span><span style="text-align:right;">Credit</span><span style="text-align:right;">Status</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 110px 1fr 130px 130px 100px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">2026-07-04</span><span style="color:#606060;">JE-0143</span><span style="font-weight:500;">Payroll accrual</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM8,400.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM8,400.00</span><span style="text-align:right;"><span style="background:#F3F3F3; color:#606060; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Draft</span></span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 110px 1fr 130px 130px 100px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">2026-07-01</span><span style="color:#606060;">JE-0142</span><span style="font-weight:500;">Monthly depreciation</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,200.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,200.00</span><span style="text-align:right;"><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Posted</span></span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 110px 1fr 130px 130px 100px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="color:#606060;">2026-06-30</span><span style="color:#606060;">JE-0141</span><span style="font-weight:500;">Bank fees adjustment</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM45.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM45.00</span><span style="text-align:right;"><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Posted</span></span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 110px 1fr 130px 130px 100px; padding:15px 24px; align-items:center; font-size:13.5px;"><span style="color:#606060;">2026-06-15</span><span style="color:#606060;">JE-0140</span><span style="font-weight:500;">Owner capital injection</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM20,000.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM20,000.00</span><span style="text-align:right;"><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:600; padding:2px 9px; border-radius:9999px;">Posted</span></span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── TAX CODES ─────── -->
+      <sc-if value="{{ showTaxcodes }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:900px; margin:0 auto;" data-screen-label="Tax codes">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:26px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Tax Codes</h1>
+          <button class="o2o-navbtn" style="height:44px; padding:0 22px; display:flex; align-items:center; gap:8px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New tax code
+          </button>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:120px 100px 150px 1fr; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Code</span><span style="text-align:right;">Rate</span><span>Type</span><span>Description</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 100px 150px 1fr; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="font-weight:600;">SST-8</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">8%</span><span style="color:#606060;">Sales Tax</span><span style="color:#606060;">Standard-rated goods &amp; services</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 100px 150px 1fr; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="font-weight:600;">SST-6</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">6%</span><span style="color:#606060;">Service Tax</span><span style="color:#606060;">Standard-rated services</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 100px 150px 1fr; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><span style="font-weight:600;">ZRE</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">0%</span><span style="color:#606060;">Exempt</span><span style="color:#606060;">Zero-rated / exempt supplies</span></div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 100px 150px 1fr; padding:15px 24px; align-items:center; font-size:13.5px;"><span style="font-weight:600;">WHT-10</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">10%</span><span style="color:#606060;">Withholding</span><span style="color:#606060;">Withholding tax — non-resident services</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── BANK TRANSACTIONS ─────── -->
+      <sc-if value="{{ showBanktx }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1120px; margin:0 auto;" data-screen-label="Bank transactions">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0;">Transactions</h1>
+          <div style="position:relative; width:260px;">
+            <select style="width:100%; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; color:#000; background:#fff; appearance:none;"><option>Maybank Business Current — •••1287</option></select>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:12px; top:14px; pointer-events:none;"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div style="background:#FEF0E3; border:1px solid #FDDBB8; border-radius:14px; padding:16px 22px; display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#A84F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span style="font-size:13.5px; color:#7A3807;"><strong>2 transactions</strong> need review before they post to your books.</span>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:120px 1fr 200px 130px 90px 120px 150px; padding:15px 24px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; letter-spacing:0.03em; text-transform:uppercase;">
+            <span>Date</span><span>Description</span><span>Category</span><span style="text-align:right;">Amount</span><span style="text-align:center;">Dir.</span><span>Status</span><span style="text-align:right;">Actions</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 1fr 200px 130px 90px 120px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="color:#606060;">2026-07-03</span><span style="font-weight:500;">DuitNow QR — Etailer Gateway</span><span style="color:#606060;">Uncategorized</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#3A6B1A;">RM4,360.00</span><span style="text-align:center;"><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:700; padding:2px 8px; border-radius:9999px;">In</span></span><span><span style="background:#FEF3E0; color:#8A5A00; font-size:11px; font-weight:600; padding:3px 9px; border-radius:9999px;">Unmatched</span></span><span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600; cursor:pointer;">Match to invoice</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 1fr 200px 130px 90px 120px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="color:#606060;">2026-07-02</span><span style="font-weight:500;">Maybank2u transfer — TNB</span><span style="color:#606060;">Uncategorized</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM320.50</span><span style="text-align:center;"><span style="background:#F3F3F3; color:#606060; font-size:11px; font-weight:700; padding:2px 8px; border-radius:9999px;">Out</span></span><span><span style="background:#FEF3E0; color:#8A5A00; font-size:11px; font-weight:600; padding:3px 9px; border-radius:9999px;">Unmatched</span></span><span style="text-align:right;"><span class="o2o-linkbtn" style="color:#F48120; font-weight:600; cursor:pointer;">Categorize</span></span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 1fr 200px 130px 90px 120px 150px; padding:15px 24px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;">
+            <span style="color:#606060;">2026-07-01</span><span style="font-weight:500;">Payroll — July batch</span><span style="color:#606060;">Payroll expense</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM18,400.00</span><span style="text-align:center;"><span style="background:#F3F3F3; color:#606060; font-size:11px; font-weight:700; padding:2px 8px; border-radius:9999px;">Out</span></span><span><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:600; padding:3px 9px; border-radius:9999px;">Matched</span></span><span style="text-align:right; color:#A8A8A8;">—</span>
+          </div>
+          <div class="o2o-row" style="display:grid; grid-template-columns:120px 1fr 200px 130px 90px 120px 150px; padding:15px 24px; align-items:center; font-size:13.5px;">
+            <span style="color:#606060;">2026-06-30</span><span style="font-weight:500;">DuitNow QR — Ong Yiew Chung</span><span style="color:#606060;">Sales revenue</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#3A6B1A;">RM6,000.00</span><span style="text-align:center;"><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:700; padding:2px 8px; border-radius:9999px;">In</span></span><span><span style="background:#E8F5E0; color:#3A6B1A; font-size:11px; font-weight:600; padding:3px 9px; border-radius:9999px;">Matched</span></span><span style="text-align:right; color:#A8A8A8;">—</span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── RECONCILE ACCOUNT ─────── -->
+      <sc-if value="{{ showReconcile }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:900px; margin:0 auto;" data-screen-label="Reconcile account">
+        <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0 0 22px;">Reconcile Account</h1>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:24px; margin-bottom:20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+          <div style="position:relative; flex:1; min-width:220px;">
+            <select style="width:100%; height:42px; padding:0 14px; border:1px solid #D0D0D0; border-radius:10px; font-size:14px; background:#fff; appearance:none;"><option>Maybank Business Current — •••1287</option></select>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute; right:12px; top:14px; pointer-events:none;"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <span style="color:#606060; font-size:13.5px;">Statement ending</span>
+          <input value="2026-06-30" style="width:150px; height:42px; padding:0 12px; border:1px solid #D0D0D0; border-radius:10px; font-size:13.5px;" />
+          <input placeholder="Ending balance (RM)" style="width:180px; height:42px; padding:0 12px; border:1px solid #D0D0D0; border-radius:10px; font-size:13.5px;" />
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;">
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Statement balance</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:24px; margin-top:6px;">RM134,208.90</div></div>
+          <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px;"><div style="font-size:12.5px; color:#808080; font-weight:500;">Book balance</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:24px; margin-top:6px;">RM134,208.90</div></div>
+          <div style="background:#E8F5E0; border:1px solid #cfe8bd; border-radius:14px; padding:20px;"><div style="font-size:12.5px; color:#3A6B1A; font-weight:500;">Difference</div><div style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:24px; margin-top:6px; color:#3A6B1A;">RM0.00</div></div>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:34px 120px 1fr 130px; padding:14px 22px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.03em;">
+            <span></span><span>Date</span><span>Description</span><span style="text-align:right;">Amount</span>
+          </div>
+          <div style="display:grid; grid-template-columns:34px 120px 1fr 130px; padding:14px 22px; border-bottom:1px solid #F2F2F2; align-items:center; font-size:13.5px;"><input type="checkbox" checked style="accent-color:#F48120; width:16px; height:16px;" /><span style="color:#606060;">2026-06-30</span><span>DuitNow QR — Ong Yiew Chung</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM6,000.00</span></div>
+          <div style="display:grid; grid-template-columns:34px 120px 1fr 130px; padding:14px 22px; align-items:center; font-size:13.5px;"><input type="checkbox" checked style="accent-color:#F48120; width:16px; height:16px;" /><span style="color:#606060;">2026-06-28</span><span>Payroll — June batch</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM18,400.00</span></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+          <button class="o2o-navbtn" style="height:44px; padding:0 24px; background:#F48120; color:#fff; border:none; border-radius:10px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">Finish reconciling</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── REPORTS INDEX ─────── -->
+      <sc-if value="{{ showReportsIndex }}" hint-placeholder-val="{{ true }}">
+      <div style="max-width:1080px; margin:0 auto;" data-screen-label="Reports">
+        <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0 0 26px;">Reports</h1>
+
+        <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; color:#606060; margin-bottom:12px;">Financial statements</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:30px;">
+          <div class="o2o-quick" onClick="{{ navReportPl }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Profit &amp; Loss</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Income, expenses and net profit over a period</div>
+          </div>
+          <div class="o2o-quick" onClick="{{ navReportBs }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Balance Sheet</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Assets, liabilities and equity as of a date</div>
+          </div>
+          <div class="o2o-quick" onClick="{{ navReportTb }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Trial Balance</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Every account's debit and credit balance</div>
+          </div>
+        </div>
+
+        <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; color:#606060; margin-bottom:12px;">Receivables &amp; payables</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:30px;">
+          <div class="o2o-quick" onClick="{{ navReportAr }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Aged Receivables</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Unpaid customer invoices by age</div>
+          </div>
+          <div class="o2o-quick" onClick="{{ navReportAp }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Aged Payables</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Unpaid vendor bills by age</div>
+          </div>
+          <div class="o2o-quick" onClick="{{ navReportGl }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">General Ledger</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Every posted transaction by account</div>
+          </div>
+          <div class="o2o-quick" onClick="{{ navReportIbc }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">Income by Customer</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Revenue breakdown per customer</div>
+          </div>
+        </div>
+
+        <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; color:#606060; margin-bottom:12px;">Tax</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+          <div class="o2o-quick" onClick="{{ navReportSst }}" style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:20px; cursor:pointer; transition:all 180ms;">
+            <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:16px;">SST Return</div>
+            <div style="font-size:12.5px; color:#808080; margin-top:6px;">Output/input tax summary for filing</div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── PROFIT & LOSS ─────── -->
+      <sc-if value="{{ showReportPl }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:820px; margin:0 auto;" data-screen-label="Profit and loss">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">Profit &amp; Loss</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">1 Aug 2025 – 4 Jul 2026 · accrual basis</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:26px 30px;">
+          <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; margin-bottom:8px;">Income</div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Sales revenue</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM212,400.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-weight:700;"><span>Total income</span><span style="font-family:'Urbanist',sans-serif;">RM212,400.00</span></div>
+
+          <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; margin:18px 0 8px;">Cost of goods sold</div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Cost of goods sold</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM64,300.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-weight:700;"><span>Gross profit</span><span style="font-family:'Urbanist',sans-serif;">RM148,100.00</span></div>
+
+          <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; margin:18px 0 8px;">Expenses</div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Operating expenses</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM38,150.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Payroll</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM18,400.00</span></div>
+          <div style="height:1px; background:#EEE; margin:14px 0;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:17px;">Net profit</span><span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:22px; color:#F48120;">RM91,550.00</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── BALANCE SHEET ─────── -->
+      <sc-if value="{{ showReportBs }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:820px; margin:0 auto;" data-screen-label="Balance sheet">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">Balance Sheet</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">As of 4 Jul 2026</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:26px 30px;">
+          <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; margin-bottom:8px;">Assets</div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Cash at bank</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM134,208.90</span></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Accounts receivable</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM50,220.54</span></div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-weight:700;"><span>Total assets</span><span style="font-family:'Urbanist',sans-serif;">RM184,429.44</span></div>
+
+          <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; margin:18px 0 8px;">Liabilities</div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Accounts payable</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM6,020.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-weight:700;"><span>Total liabilities</span><span style="font-family:'Urbanist',sans-serif;">RM6,020.00</span></div>
+
+          <div style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:15px; margin:18px 0 8px;">Equity</div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Owner's equity</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM80,000.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Retained earnings</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM98,409.44</span></div>
+          <div style="height:1px; background:#EEE; margin:14px 0;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:17px;">Total liabilities &amp; equity</span><span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:20px;">RM184,429.44</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── TRIAL BALANCE ─────── -->
+      <sc-if value="{{ showReportTb }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:820px; margin:0 auto;" data-screen-label="Trial balance">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">Trial Balance</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">As of 4 Jul 2026</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:14px 22px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.03em;"><span>Account</span><span style="text-align:right;">Debit</span><span style="text-align:right;">Credit</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span>Cash at Bank</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM134,208.90</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span>Accounts Receivable</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM50,220.54</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span>Accounts Payable</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM6,020.00</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span>Owner's Equity</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM80,000.00</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span>Sales Revenue</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM212,400.00</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span>Cost of Goods Sold</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM64,300.00</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:13px 22px; font-size:13.5px;"><span>Operating Expenses</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM38,150.00 + RM18,400.00</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1fr 160px 160px; padding:14px 22px; border-top:1px solid #EEE; font-weight:700; font-size:13.5px;"><span>Total</span><span style="text-align:right; font-family:'Urbanist',sans-serif;">RM298,428.90</span><span style="text-align:right; font-family:'Urbanist',sans-serif;">RM298,420.00</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── AGED RECEIVABLES ─────── -->
+      <sc-if value="{{ showReportAr }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1000px; margin:0 auto;" data-screen-label="Aged receivables">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">Aged Receivables</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">As of 4 Jul 2026</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.02em;"><span>Customer</span><span style="text-align:right;">Current</span><span style="text-align:right;">1-30</span><span style="text-align:right;">31-60</span><span style="text-align:right;">61-90</span><span style="text-align:right;">90+</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-bottom:1px solid #F5F5F5; font-size:13px;"><span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#D4302F;">RM10,092.37</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-bottom:1px solid #F5F5F5; font-size:13px;"><span style="font-weight:500;">Ong Yiew Chung</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#D4302F;">RM18,000.00</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-bottom:1px solid #F5F5F5; font-size:13px;"><span style="font-weight:500;">DJ Technology (Malaysia) Sdn Bhd</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM5,973.50</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; font-size:13px;"><span style="font-weight:500;">O2O eCommerce Sdn Bhd</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM2,750.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-top:1px solid #EEE; font-weight:700; font-size:13px;"><span>Total</span><span style="text-align:right; font-family:'Urbanist',sans-serif;">RM2,750.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif;">RM5,973.50</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; color:#D4302F;">RM28,092.37</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── AGED PAYABLES ─────── -->
+      <sc-if value="{{ showReportAp }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1000px; margin:0 auto;" data-screen-label="Aged payables">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">Aged Payables</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">As of 4 Jul 2026</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.02em;"><span>Vendor</span><span style="text-align:right;">Current</span><span style="text-align:right;">1-30</span><span style="text-align:right;">31-60</span><span style="text-align:right;">61-90</span><span style="text-align:right;">90+</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-bottom:1px solid #F5F5F5; font-size:13px;"><span style="font-weight:500;">Selangor Print Supplies Sdn Bhd</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700; color:#D4302F;">RM4,220.00</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; font-size:13px;"><span style="font-weight:500;">Kuala Lumpur Office Rentals</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM1,800.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right; color:#A8A8A8;">—</span></div>
+          <div style="display:grid; grid-template-columns:1.4fr repeat(4,1fr) 1fr; padding:14px 22px; border-top:1px solid #EEE; font-weight:700; font-size:13px;"><span>Total</span><span style="text-align:right; font-family:'Urbanist',sans-serif;">RM1,800.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; color:#D4302F;">RM4,220.00</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span><span style="text-align:right;">—</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── GENERAL LEDGER ─────── -->
+      <sc-if value="{{ showReportGl }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1000px; margin:0 auto;" data-screen-label="General ledger">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">General Ledger</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">Account: Cash at Bank (1000) · Jun–Jul 2026</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:110px 1fr 120px 120px 140px; padding:14px 22px; border-bottom:1px solid #EEE; background:#FAFAFA; font-size:11.5px; font-weight:600; color:#808080; text-transform:uppercase; letter-spacing:0.03em;"><span>Date</span><span>Description</span><span style="text-align:right;">Debit</span><span style="text-align:right;">Credit</span><span style="text-align:right;">Balance</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 120px 120px 140px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span style="color:#606060;">2026-06-28</span><span>Payroll — June batch</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM18,400.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM122,608.90</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 120px 120px 140px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span style="color:#606060;">2026-06-30</span><span>DuitNow QR — Ong Yiew Chung</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM6,000.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM128,608.90</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 120px 120px 140px; padding:13px 22px; border-bottom:1px solid #F5F5F5; font-size:13.5px;"><span style="color:#606060;">2026-07-01</span><span>Payroll — July batch</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM18,400.00</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM110,208.90</span></div>
+          <div style="display:grid; grid-template-columns:110px 1fr 120px 120px 140px; padding:13px 22px; font-size:13.5px;"><span style="color:#606060;">2026-07-03</span><span>DuitNow QR — Etailer Gateway</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:600;">RM4,360.00</span><span style="text-align:right; color:#A8A8A8;">—</span><span style="text-align:right; font-family:'Urbanist',sans-serif; font-weight:700;">RM134,208.90</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── INCOME BY CUSTOMER ─────── -->
+      <sc-if value="{{ showReportIbc }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:820px; margin:0 auto;" data-screen-label="Income by customer">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">Income by Customer</h1>
+          <button style="height:40px; padding:0 16px; background:#fff; border:1.5px solid #D0D0D0; border-radius:9px; font-weight:600; font-size:13px; color:#404040; cursor:pointer;">Export</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">Last 12 months</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:26px 30px; display:flex; flex-direction:column; gap:16px;">
+          <div><div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px;"><span style="font-weight:500;">Etailer Gateway (M) Sdn Bhd</span><span style="font-family:'Urbanist',sans-serif; font-weight:700;">RM86,200.00</span></div><div style="height:8px; border-radius:9999px; background:#F3F3F3;"><div style="height:8px; width:100%; border-radius:9999px; background:#F48120;"></div></div></div>
+          <div><div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px;"><span style="font-weight:500;">DJ Technology (Malaysia) Sdn Bhd</span><span style="font-family:'Urbanist',sans-serif; font-weight:700;">RM61,450.00</span></div><div style="height:8px; border-radius:9999px; background:#F3F3F3;"><div style="height:8px; width:71%; border-radius:9999px; background:#F48120;"></div></div></div>
+          <div><div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px;"><span style="font-weight:500;">Ong Yiew Chung</span><span style="font-family:'Urbanist',sans-serif; font-weight:700;">RM42,300.00</span></div><div style="height:8px; border-radius:9999px; background:#F3F3F3;"><div style="height:8px; width:49%; border-radius:9999px; background:#F48120;"></div></div></div>
+          <div><div style="display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:6px;"><span style="font-weight:500;">O2O eCommerce Sdn Bhd</span><span style="font-family:'Urbanist',sans-serif; font-weight:700;">RM22,450.00</span></div><div style="height:8px; border-radius:9999px; background:#F3F3F3;"><div style="height:8px; width:26%; border-radius:9999px; background:#F48120;"></div></div></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── SST RETURN ─────── -->
+      <sc-if value="{{ showReportSst }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:820px; margin:0 auto;" data-screen-label="SST return">
+        <button class="o2o-linkbtn" onClick="{{ navReportsIndex }}" style="display:flex; align-items:center; gap:6px; border:none; background:none; color:#606060; font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Back to reports</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:30px; letter-spacing:-0.6px; margin:0;">SST Return</h1>
+          <button class="o2o-navbtn" style="height:42px; padding:0 18px; background:#F48120; color:#fff; border:none; border-radius:10px; font-weight:600; font-size:13.5px; cursor:pointer;">Mark as filed</button>
+        </div>
+        <p style="margin:0 0 20px; color:#808080; font-size:13.5px;">Taxable period: 1 May – 30 Jun 2026</p>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:26px 30px;">
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Output tax (sales SST collected)</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM7,392.00</span></div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:13.5px; border-bottom:1px solid #F5F5F5;"><span>Input tax (purchase SST paid)</span><span style="font-family:'Urbanist',sans-serif; font-weight:600;">RM1,120.40</span></div>
+          <div style="height:1px; background:#EEE; margin:14px 0;"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center;"><span style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:17px;">Net SST payable</span><span style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:22px; color:#F48120;">RM6,271.60</span></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ─────── COMPANY SETTINGS ─────── -->
+      <sc-if value="{{ showSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:820px; margin:0 auto;" data-screen-label="Company settings">
+        <h1 style="font-family:'Urbanist',sans-serif; font-weight:800; font-size:34px; letter-spacing:-0.8px; margin:0 0 26px;">Company Settings</h1>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:28px 30px; margin-bottom:20px;">
+          <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:17px; margin:0 0 18px;">Company profile</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+            <div><label style="font-size:12.5px; color:#606060; font-weight:500;">Legal name</label><input value="O2O Alliance Sdn Bhd" style="width:100%; height:42px; margin-top:6px; padding:0 12px; border:1px solid #D0D0D0; border-radius:9px; font-size:14px; box-sizing:border-box;" /></div>
+            <div><label style="font-size:12.5px; color:#606060; font-weight:500;">Registration no.</label><input value="201801023456 (1287654-A)" style="width:100%; height:42px; margin-top:6px; padding:0 12px; border:1px solid #D0D0D0; border-radius:9px; font-size:14px; box-sizing:border-box;" /></div>
+            <div><label style="font-size:12.5px; color:#606060; font-weight:500;">Base currency</label><input value="MYR — Malaysian Ringgit" style="width:100%; height:42px; margin-top:6px; padding:0 12px; border:1px solid #D0D0D0; border-radius:9px; font-size:14px; box-sizing:border-box;" /></div>
+            <div><label style="font-size:12.5px; color:#606060; font-weight:500;">Financial year end</label><input value="31 December" style="width:100%; height:42px; margin-top:6px; padding:0 12px; border:1px solid #D0D0D0; border-radius:9px; font-size:14px; box-sizing:border-box;" /></div>
+          </div>
+        </div>
+        <div style="background:#fff; border:1px solid #E8E8E8; border-radius:14px; padding:28px 30px; margin-bottom:20px;">
+          <h3 style="font-family:'Urbanist',sans-serif; font-weight:700; font-size:17px; margin:0 0 14px;">e-Invoice (LHDN MyInvois)</h3>
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:#E8F5E0; border-radius:10px;">
+            <span style="font-size:13.5px; color:#3A6B1A;"><strong>Connected</strong> — validating invoices in real time</span>
+            <button style="height:36px; padding:0 14px; background:#fff; border:1.5px solid #cfe8bd; border-radius:8px; font-weight:600; font-size:12.5px; color:#3A6B1A; cursor:pointer;">Manage</button>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="o2o-navbtn" style="height:44px; padding:0 24px; background:#F48120; color:#fff; border:none; border-radius:10px; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(244,129,32,0.30);">Save changes</button>
+        </div>
+      </div>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'dashboard', tab: 'unpaid' };
+
+  go(screen) { this.setState({ screen }); const m = document.querySelector('main'); if (m) m.scrollTop = 0; }
+
+  renderVals() {
+    const s = this.state.screen;
+    const tab = this.state.tab;
+
+    // ── screen groups (for sidebar section highlighting) ──
+    const salesScreens = ['invoices','detail','create','estimates','recurring','statements','parties-list','parties-detail','items'];
+    const purchaseScreens = ['bills-list','bills-detail'];
+    const acctScreens = ['accounts','journal','taxcodes'];
+    const bankScreens = ['banktx','reconcile'];
+    const reportScreens = ['reports-index','report-pl','report-bs','report-tb','report-ar','report-ap','report-gl','report-ibc','report-sst'];
+
+    const onSales = salesScreens.includes(s);
+    const onPurchases = purchaseScreens.includes(s);
+    const onAcct = acctScreens.includes(s);
+    const onBank = bankScreens.includes(s);
+    const onReports = reportScreens.includes(s);
+
+    const activeTab = { bg: '#fff', shadow: '0 1px 3px rgba(0,0,0,0.12)', fg: '#0d0d0d' };
+    const idleTab = { bg: 'transparent', shadow: 'none', fg: '#808080' };
+    const u = tab === 'unpaid' ? activeTab : idleTab;
+    const d = tab === 'draft' ? activeTab : idleTab;
+    const a = tab === 'all' ? activeTab : idleTab;
+
+    // helper for a sidebar leaf item's styles
+    const leaf = (id) => ({
+      bg: s === id ? '#1c1c1c' : 'transparent',
+      fg: s === id ? '#F48120' : '#9a9a9a',
+      wt: s === id ? 600 : 400,
+    });
+    const L = {};
+    ['estimates','invoices','recurring','statements','parties-list','items',
+     'bills-list','accounts','journal','taxcodes','banktx','reconcile','reports-index','settings']
+      .forEach(id => { L[id] = leaf(id === 'invoices' ? (onSales && (s==='invoices'||s==='detail'||s==='create') ? 'invoices' : '__none') : id); });
+    // invoices leaf should also light up for detail/create
+    L['invoices'] = { bg: (s==='invoices'||s==='detail'||s==='create') ? '#1c1c1c' : 'transparent', fg: (s==='invoices'||s==='detail'||s==='create') ? '#F48120' : '#9a9a9a', wt: (s==='invoices'||s==='detail'||s==='create') ? 600 : 400 };
+    L['parties-list'] = { bg: (s==='parties-list'||s==='parties-detail') ? '#1c1c1c' : 'transparent', fg: (s==='parties-list'||s==='parties-detail') ? '#F48120' : '#9a9a9a', wt: (s==='parties-list'||s==='parties-detail') ? 600 : 400 };
+    L['bills-list'] = { bg: (s==='bills-list'||s==='bills-detail') ? '#1c1c1c' : 'transparent', fg: (s==='bills-list'||s==='bills-detail') ? '#F48120' : '#9a9a9a', wt: (s==='bills-list'||s==='bills-detail') ? 600 : 400 };
+    L['reports-index'] = { bg: onReports ? '#1c1c1c' : 'transparent', fg: onReports ? '#F48120' : '#9a9a9a', wt: onReports ? 600 : 400 };
+
+    return {
+      // ── screen visibility ──
+      showDashboard: s === 'dashboard',
+      showInvoices: s === 'invoices',
+      showDetail: s === 'detail',
+      showCreate: s === 'create',
+      showEstimates: s === 'estimates',
+      showRecurring: s === 'recurring',
+      showStatements: s === 'statements',
+      showPartiesList: s === 'parties-list',
+      showPartiesDetail: s === 'parties-detail',
+      showItems: s === 'items',
+      showBillsList: s === 'bills-list',
+      showBillsDetail: s === 'bills-detail',
+      showAccounts: s === 'accounts',
+      showJournal: s === 'journal',
+      showTaxcodes: s === 'taxcodes',
+      showBanktx: s === 'banktx',
+      showReconcile: s === 'reconcile',
+      showReportsIndex: s === 'reports-index',
+      showReportPl: s === 'report-pl',
+      showReportBs: s === 'report-bs',
+      showReportTb: s === 'report-tb',
+      showReportAr: s === 'report-ar',
+      showReportAp: s === 'report-ap',
+      showReportGl: s === 'report-gl',
+      showReportIbc: s === 'report-ibc',
+      showReportSst: s === 'report-sst',
+      showSettings: s === 'settings',
+
+      // ── nav handlers ──
+      navDashboard: () => this.go('dashboard'),
+      navInvoices: () => this.go('invoices'),
+      navDetail: () => this.go('detail'),
+      navCreate: () => this.go('create'),
+      navEstimates: () => this.go('estimates'),
+      navRecurring: () => this.go('recurring'),
+      navStatements: () => this.go('statements'),
+      navPartiesList: () => this.go('parties-list'),
+      navPartiesDetail: () => this.go('parties-detail'),
+      navItems: () => this.go('items'),
+      navBillsList: () => this.go('bills-list'),
+      navBillsDetail: () => this.go('bills-detail'),
+      navAccounts: () => this.go('accounts'),
+      navJournal: () => this.go('journal'),
+      navTaxcodes: () => this.go('taxcodes'),
+      navBanktx: () => this.go('banktx'),
+      navReconcile: () => this.go('reconcile'),
+      navReportsIndex: () => this.go('reports-index'),
+      navReportPl: () => this.go('report-pl'),
+      navReportBs: () => this.go('report-bs'),
+      navReportTb: () => this.go('report-tb'),
+      navReportAr: () => this.go('report-ar'),
+      navReportAp: () => this.go('report-ap'),
+      navReportGl: () => this.go('report-gl'),
+      navReportIbc: () => this.go('report-ibc'),
+      navReportSst: () => this.go('report-sst'),
+      navSettings: () => this.go('settings'),
+
+      // ── sidebar section styling ──
+      dashBg: s === 'dashboard' ? '#1c1c1c' : 'transparent',
+      dashFg: s === 'dashboard' ? '#F48120' : '#c8c8c8',
+      dashWt: s === 'dashboard' ? 600 : 400,
+      salesFg: onSales ? '#fff' : '#c8c8c8',
+      salesWt: onSales ? 600 : 400,
+      purchasesFg: onPurchases ? '#fff' : '#c8c8c8',
+      purchasesWt: onPurchases ? 600 : 400,
+      acctFg: onAcct ? '#fff' : '#c8c8c8',
+      acctWt: onAcct ? 600 : 400,
+      bankFg: onBank ? '#fff' : '#c8c8c8',
+      bankWt: onBank ? 600 : 400,
+      reportsFg: onReports ? '#fff' : '#c8c8c8',
+      reportsWt: onReports ? 600 : 400,
+
+      estimatesBg: L['estimates'].bg, estimatesFg: L['estimates'].fg, estimatesWt: L['estimates'].wt,
+      invoicesBg: L['invoices'].bg, invoicesFg: L['invoices'].fg, invoicesWt: L['invoices'].wt,
+      recurringBg: L['recurring'].bg, recurringFg: L['recurring'].fg, recurringWt: L['recurring'].wt,
+      statementsBg: L['statements'].bg, statementsFg: L['statements'].fg, statementsWt: L['statements'].wt,
+      partiesBg: L['parties-list'].bg, partiesFg: L['parties-list'].fg, partiesWt: L['parties-list'].wt,
+      itemsBg: L['items'].bg, itemsFg: L['items'].fg, itemsWt: L['items'].wt,
+      billsBg: L['bills-list'].bg, billsFg: L['bills-list'].fg, billsWt: L['bills-list'].wt,
+      accountsBg: L['accounts'].bg, accountsFg: L['accounts'].fg, accountsWt: L['accounts'].wt,
+      journalBg: L['journal'].bg, journalFg: L['journal'].fg, journalWt: L['journal'].wt,
+      taxcodesBg: L['taxcodes'].bg, taxcodesFg: L['taxcodes'].fg, taxcodesWt: L['taxcodes'].wt,
+      banktxBg: L['banktx'].bg, banktxFg: L['banktx'].fg, banktxWt: L['banktx'].wt,
+      reconcileBg: L['reconcile'].bg, reconcileFg: L['reconcile'].fg, reconcileWt: L['reconcile'].wt,
+      reportsIndexBg: L['reports-index'].bg, reportsIndexFg: L['reports-index'].fg, reportsIndexWt: L['reports-index'].wt,
+
+      // tabs (invoices list)
+      setUnpaid: () => this.setState({ tab: 'unpaid' }),
+      setDraft: () => this.setState({ tab: 'draft' }),
+      setAll: () => this.setState({ tab: 'all' }),
+      showUnpaid: tab === 'unpaid' || tab === 'all',
+      showDraftList: tab === 'draft',
+      tabUnpaidBg: u.bg, tabUnpaidShadow: u.shadow, tabUnpaidFg: u.fg,
+      tabDraftBg: d.bg, tabDraftShadow: d.shadow, tabDraftFg: d.fg,
+      tabAllBg: a.bg, tabAllShadow: a.shadow, tabAllFg: a.fg,
+      tabUnpaidPillBg: tab === 'unpaid' ? '#FEF0E3' : '#E4E4E4',
+      tabUnpaidPillFg: tab === 'unpaid' ? '#A84F0B' : '#808080',
+      tabDraftPillBg: tab === 'draft' ? '#FEF0E3' : '#E4E4E4',
+      tabDraftPillFg: tab === 'draft' ? '#A84F0B' : '#808080',
+    };
+  }
+}
+</script>
+</body>
+</html>

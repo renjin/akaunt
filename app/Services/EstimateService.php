@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Company;
 use App\Models\Estimate;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,7 @@ use InvalidArgumentException;
  */
 class EstimateService
 {
-    public function nextNumber(\App\Models\Company $company): string
+    public function nextNumber(Company $company): string
     {
         $last = $company->estimates()
             ->where('estimate_number', 'like', 'EST-%')
@@ -22,7 +23,7 @@ class EstimateService
 
         $n = $last ? (int) preg_replace('/\D/', '', substr($last, 4)) : 0;
 
-        return 'EST-' . str_pad((string) ($n + 1), 5, '0', STR_PAD_LEFT);
+        return 'EST-'.str_pad((string) ($n + 1), 5, '0', STR_PAD_LEFT);
     }
 
     public function calculateTotals(Estimate $estimate): Estimate
@@ -30,14 +31,30 @@ class EstimateService
         $subtotal = '0.00';
         $taxTotal = '0.00';
 
+        $taxCodes = $estimate->company->taxCodes()->get()->keyBy('id');
+
         foreach ($estimate->lines as $line) {
             $lineTotal = bcsub(
                 bcmul((string) $line->quantity, (string) $line->unit_price, 2),
                 '0.00', 2
             );
-            $taxAmount = $line->taxCode ? $line->taxCode->calculate((float) $lineTotal) : '0.00';
 
-            $line->forceFill(['line_total' => $lineTotal, 'tax_amount' => $taxAmount])->save();
+            // Multi-tax: sum every selected code's calculated tax against the line total.
+            $ids = $line->effectiveTaxCodeIds();
+            $taxAmount = '0.00';
+            foreach ($ids as $id) {
+                if ($code = $taxCodes->get($id)) {
+                    $taxAmount = bcadd($taxAmount, $code->calculate((float) $lineTotal), 2);
+                }
+            }
+
+            $line->forceFill([
+                'line_total' => $lineTotal,
+                'tax_amount' => $taxAmount,
+                // Keep the single FK pointing at the first selected code for back-compat.
+                'tax_code_id' => $ids[0] ?? null,
+            ])->save();
+
             $subtotal = bcadd($subtotal, $lineTotal, 2);
             $taxTotal = bcadd($taxTotal, $taxAmount, 2);
         }

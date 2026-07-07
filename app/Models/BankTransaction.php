@@ -35,4 +35,9 @@ class BankTransaction extends Model
     {
         return $this->belongsTo(Payment::class, 'matched_payment_id');
     }
+
+    public function party(): BelongsTo
+    {
+        return $this->belongsTo(Party::class);
+    }
 }

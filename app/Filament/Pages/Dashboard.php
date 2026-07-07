@@ -30,7 +30,7 @@ class Dashboard extends BaseDashboard
     {
         $company = Filament::getTenant();
         $today = today();
-        $start = $today->copy()->subMonths(11)->startOfMonth();
+        $start = $today->copy()->startOfYear();
         $report = app(ReportService::class)->profitAndLoss($company, $start->toDateString(), $today->toDateString());
 
         $openInvoices = $company->invoices()
@@ -51,15 +51,20 @@ class Dashboard extends BaseDashboard
             ->selectRaw("COUNT(*) FILTER (WHERE status = 'unmatched') as unmatched")
             ->first();
 
+        $hour = now()->hour;
+
         return [
             'company' => $company,
+            'greeting' => $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening'),
+            'periodLabel' => $start->format('M j').' – '.$today->format('M j, Y').' · Year to date',
+            'asOfLabel' => 'As of '.$today->format('M j, Y'),
             'actions' => $this->quickActions(),
             'openInvoices' => $openInvoices->take(3),
             'openBills' => $openBills->take(3),
             'summary' => [
-                'overdue_invoices' => $this->sumBalances($openInvoices->filter(fn ($invoice) => $invoice->due_date?->isPast())),
+                'overdue_invoices' => $this->sumBalances($openInvoices->filter(fn ($invoice) => $invoice->due_date?->lt($today))),
                 'due_soon' => $this->sumBalances($openInvoices->filter(fn ($invoice) => $invoice->due_date?->between($today, $today->copy()->addDays(30)))),
-                'overdue_bills' => $this->sumBalances($openBills->filter(fn ($bill) => $bill->due_date?->isPast())),
+                'overdue_bills' => $this->sumBalances($openBills->filter(fn ($bill) => $bill->due_date?->lt($today))),
                 'income' => $report['totals']['income'],
                 'expenses' => bcadd($report['totals']['expense'], $report['totals']['cogs'], 2),
                 'net_profit' => $report['net_profit'],
@@ -76,7 +81,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             ['label' => 'Create invoice', 'href' => InvoiceResource::getUrl('create'), 'icon' => 'receipt', 'tone' => 'blue'],
-            ['label' => 'Record payment', 'href' => InvoiceResource::getUrl(), 'icon' => 'payment', 'tone' => 'green'],
+            ['label' => 'Record payment', 'href' => InvoiceResource::getUrl().'?activeTab=unpaid', 'icon' => 'payment', 'tone' => 'green'],
             ['label' => 'Add bill', 'href' => BillResource::getUrl('create'), 'icon' => 'bill', 'tone' => 'lavender'],
             ['label' => 'Add transaction', 'href' => BankTransactionResource::getUrl('create'), 'icon' => 'transfer', 'tone' => 'yellow'],
         ];

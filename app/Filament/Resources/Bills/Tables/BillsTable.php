@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Bills\Tables;
 
 use App\Filament\Resources\Bills\BillActions;
+use App\Filament\Resources\Bills\BillResource;
+use App\Filament\Resources\Parties\PartyResource;
 use App\Models\Bill;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
@@ -16,13 +18,20 @@ class BillsTable
     {
         return $table
             ->defaultSort('bill_date', 'desc')
+            ->recordUrl(fn (Bill $record) => BillResource::getUrl('view', ['record' => $record]))
             ->columns([
                 TextColumn::make('bill_number')->searchable(),
-                TextColumn::make('party.name')->label('Vendor')->searchable(),
+                TextColumn::make('party.name')
+                    ->label('Vendor')
+                    ->searchable()
+                    ->url(fn (Bill $record): ?string => $record->party
+                        ? PartyResource::getUrl('view', ['record' => $record->party])
+                        : null),
                 TextColumn::make('bill_date')->date()->sortable(),
                 TextColumn::make('due_date')->date()->sortable(),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
                     ->color(fn (string $state) => match ($state) {
                         'draft' => 'gray',
                         'approved' => 'info',

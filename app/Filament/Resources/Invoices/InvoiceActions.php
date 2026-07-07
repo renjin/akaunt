@@ -5,8 +5,10 @@ namespace App\Filament\Resources\Invoices;
 use App\Mail\InvoiceMail;
 use App\Models\Account;
 use App\Models\Invoice;
-use App\Services\InvoicePdf;
 use App\Services\CreditNoteService;
+use App\Services\Einvoice\EinvoiceService;
+use App\Services\HitPay\HitPayService;
+use App\Services\InvoicePdf;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use Filament\Actions\Action;
@@ -17,18 +19,23 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\HtmlString;
 use InvalidArgumentException;
 
 /** Lifecycle actions shared by the invoice table and edit page. */
 class InvoiceActions
 {
-    /** @return array<Action> */
-    public static function make(): array
+    /**
+     * @param  array<string>  $except  action names to leave out (e.g. when rendered standalone elsewhere)
+     * @return array<Action>
+     */
+    public static function make(array $except = []): array
     {
-        return [
+        $actions = [
             self::approve(),
             self::recordPayment(),
             self::sendEmail(),
+            self::sendReminder(),
             self::downloadPdf(),
             self::createPaymentLink(),
             self::createCreditNote(),
@@ -37,6 +44,11 @@ class InvoiceActions
             self::cancelEinvoice(),
             self::void(),
         ];
+
+        return array_values(array_filter(
+            $actions,
+            fn (Action $action) => ! in_array($action->getName(), $except, true),
+        ));
     }
 
     public static function createPaymentLink(): Action
@@ -53,7 +65,7 @@ class InvoiceActions
             ->modalDescription(fn (Invoice $record) => "Creates a HitPay checkout for {$record->currency} {$record->balance_due}. The link goes on the PDF and email; payment records automatically when the customer pays.")
             ->action(function (Invoice $record) {
                 try {
-                    app(\App\Services\HitPay\HitPayService::class)->createCheckout($record);
+                    app(HitPayService::class)->createCheckout($record);
                     Notification::make()->success()
                         ->title('Payment link created.')
                         ->body($record->refresh()->payment_url)
@@ -119,7 +131,7 @@ class InvoiceActions
             ->modalDescription('Stages this invoice for LHDN e-Invoice review. Nothing is transmitted yet.')
             ->action(function (Invoice $record) {
                 try {
-                    app(\App\Services\Einvoice\EinvoiceService::class)->queueForApproval($record);
+                    app(EinvoiceService::class)->queueForApproval($record);
                     Notification::make()->success()->title('Queued — review and submit when ready.')->send();
                 } catch (InvalidArgumentException $e) {
                     Notification::make()->danger()->title($e->getMessage())->send();
@@ -136,15 +148,15 @@ class InvoiceActions
             ->visible(fn (Invoice $record) => $record->einvoice_status === 'pending_review')
             ->modalHeading('Review e-Invoice before transmission to LHDN')
             ->modalDescription('THIS IS IRREVERSIBLE once validated (corrections need a credit note). Check every field below.')
-            ->modalContent(fn (Invoice $record) => new \Illuminate\Support\HtmlString(
+            ->modalContent(fn (Invoice $record) => new HtmlString(
                 '<pre style="font-size:11px;max-height:400px;overflow:auto;background:#f7f7f7;padding:12px;border-radius:8px">'
-                . e(json_encode($record->submission?->payload_snapshot, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))
-                . '</pre>'
+                .e(json_encode($record->submission?->payload_snapshot, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))
+                .'</pre>'
             ))
             ->modalSubmitActionLabel('Approve & transmit to LHDN')
             ->action(function (Invoice $record) {
                 try {
-                    app(\App\Services\Einvoice\EinvoiceService::class)
+                    app(EinvoiceService::class)
                         ->approveAndSubmit($record->submission, auth()->user());
                     Notification::make()->success()->title('Transmitted to LHDN via middleware — status will update on the next poll.')->send();
                 } catch (\Throwable $e) {
@@ -164,7 +176,7 @@ class InvoiceActions
             ->modalDescription('Cancellation is only possible within the middleware window (same month). Proceed?')
             ->action(function (Invoice $record) {
                 try {
-                    app(\App\Services\Einvoice\EinvoiceService::class)->cancel($record->submission);
+                    app(EinvoiceService::class)->cancel($record->submission);
                     Notification::make()->success()->title('e-Invoice cancelled.')->send();
                 } catch (\Throwable $e) {
                     Notification::make()->danger()->title($e->getMessage())->send();
@@ -254,10 +266,37 @@ class InvoiceActions
             ->modalDescription(fn (Invoice $record) => "Send {$record->invoice_number} with PDF attached to {$record->party->email}?")
             ->action(function (Invoice $record) {
                 Mail::to($record->party->email)->send(new InvoiceMail($record));
+                $updates = ['last_sent_at' => now()];
                 if ($record->status === 'approved') {
-                    $record->forceFill(['status' => 'sent'])->save();
+                    $updates['status'] = 'sent';
                 }
+                $record->forceFill($updates)->save();
                 Notification::make()->success()->title("Sent to {$record->party->email}.")->send();
+            });
+    }
+
+    public static function sendReminder(): Action
+    {
+        return Action::make('sendReminder')
+            ->label('Send reminder')
+            ->icon('heroicon-o-bell-alert')
+            ->color('warning')
+            ->visible(fn (Invoice $record) => $record->isOverdue()
+                && bccomp($record->balance_due, '0', 2) === 1
+                && filled($record->party->email))
+            ->requiresConfirmation()
+            ->modalDescription(fn (Invoice $record) => "Send a payment reminder for {$record->invoice_number} ({$record->currency} {$record->balance_due} outstanding) with PDF attached to {$record->party->email}?")
+            ->action(function (Invoice $record) {
+                Mail::to($record->party->email)->send(new InvoiceMail($record, reminder: true));
+                $updates = [
+                    'last_reminder_at' => now(),
+                    'reminders_sent_count' => (int) $record->reminders_sent_count + 1,
+                ];
+                if ($record->status === 'approved') {
+                    $updates['status'] = 'sent';
+                }
+                $record->forceFill($updates)->save();
+                Notification::make()->success()->title("Reminder sent to {$record->party->email}.")->send();
             });
     }
 
@@ -267,7 +306,7 @@ class InvoiceActions
             ->label('Download PDF')
             ->icon('heroicon-o-arrow-down-tray')
             ->action(fn (Invoice $record) => response()->streamDownload(
-                fn () => print(InvoicePdf::render($record)->output()),
+                fn () => print (InvoicePdf::render($record)->output()),
                 InvoicePdf::filename($record),
             ));
     }

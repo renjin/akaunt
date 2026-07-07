@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\Tenancy\EditTenantProfile;
@@ -60,7 +61,7 @@ class CompanySettings extends EditTenantProfile
                     ->description('Shown on unpaid invoice PDFs and emails so customers can pay you directly.')
                     ->columns(2)
                     ->schema([
-                        \Filament\Forms\Components\Textarea::make('duitnow_qr_payload')
+                        Textarea::make('duitnow_qr_payload')
                             ->label('DuitNow QR payload')
                             ->helperText('The QR text string from your bank\'s DuitNow QR merchant enrolment. We render it as a scannable QR on invoices.')
                             ->rows(3)
@@ -87,6 +88,25 @@ class CompanySettings extends EditTenantProfile
                             ->options(fn () => Filament::getTenant()->accounts()
                                 ->where('subtype', 'cash_bank')->where('active', true)->orderBy('code')
                                 ->get()->mapWithKeys(fn ($a) => [$a->id => "{$a->code} · {$a->name}"])),
+                    ]),
+                Section::make('Invoice & estimate defaults')
+                    ->description('Prefilled on every new document — you can still change them per invoice or estimate.')
+                    ->columns(2)
+                    ->schema([
+                        Select::make('payment_terms_days_default')
+                            ->label('Default payment terms')
+                            ->options([0 => 'On receipt', 7 => 'Net 7', 14 => 'Net 14', 30 => 'Net 30'])
+                            ->default(30)
+                            ->helperText('Drives the payment due date suggested on new invoices.')
+                            ->columnSpanFull(),
+                        Textarea::make('invoice_notes_default')
+                            ->label('Standard invoice notes / terms')
+                            ->rows(4)
+                            ->helperText('Prefilled into the notes of every new invoice.'),
+                        Textarea::make('estimate_notes_default')
+                            ->label('Standard estimate notes / terms')
+                            ->rows(4)
+                            ->helperText('Prefilled into the notes of every new estimate.'),
                     ]),
                 Section::make('LHDN e-Invoice')
                     ->description('Businesses under RM1,000,000 annual turnover are currently exempt (Dec 2025 LHDN decision — verify against the current timeline). Enable when you cross the threshold or want to pilot.')

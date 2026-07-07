@@ -1,9 +1,8 @@
 <x-filament-panels::page>
     <x-filament::section>
-        <div class="mb-4">
-            <label class="text-sm">As of <input type="date" wire:model.live="asOf" class="rounded border-gray-300 text-sm"></label>
-        </div>
+        @include('filament.pages.partials.report-toolbar', ['mode' => 'asof'])
         @php($r = $this->getReport())
+        @php($gl = fn ($account) => \App\Filament\Pages\GeneralLedger::getUrl(['account' => $account->id, 'from' => '1970-01-01', 'to' => $this->asOf]))
         <table class="w-full text-sm">
             <thead>
             <tr class="text-left border-b font-medium">
@@ -15,7 +14,7 @@
             <tbody>
             @foreach($r['rows'] as $row)
                 <tr class="border-b">
-                    <td class="py-1.5">{{ $row['account']->code }} · {{ $row['account']->name }}</td>
+                    <td class="py-1.5"><a href="{{ $gl($row['account']) }}" class="hover:underline">{{ $row['account']->code }} · {{ $row['account']->name }}</a></td>
                     <td class="py-1.5 text-right">{{ (float) $row['debit'] ? number_format($row['debit'], 2) : '' }}</td>
                     <td class="py-1.5 text-right">{{ (float) $row['credit'] ? number_format($row['credit'], 2) : '' }}</td>
                 </tr>

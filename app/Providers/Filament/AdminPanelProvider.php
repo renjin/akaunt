@@ -30,12 +30,25 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('akaunt')
+            ->brandName('Books')
             ->tenant(Company::class, slugAttribute: 'slug')
             ->tenantProfile(CompanySettings::class)
             ->darkMode(false, isForced: true)
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => [
+                    50 => '#FEF0E3',
+                    100 => '#FDDBB8',
+                    200 => '#FBB97C',
+                    300 => '#F89640',
+                    400 => '#F48120',
+                    500 => '#F48120',
+                    600 => '#D96910',
+                    700 => '#A84F0B',
+                    800 => '#7A3807',
+                    900 => '#4D2204',
+                    950 => '#2E1402',
+                ],
+                'gray' => Color::Neutral,
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->sidebarWidth('16rem')

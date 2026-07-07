@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Account;
 use App\Models\Company;
 use App\Services\BankTransactionService;
 use App\Services\BillService;
@@ -15,7 +14,7 @@ use App\Services\ReportService;
  */
 beforeEach(function () {
     $this->company = Company::create([
-        'name' => 'Cycle Sdn Bhd', 'slug' => 'cycle-' . uniqid(), 'legal_form' => 'sdn_bhd',
+        'name' => 'Cycle Sdn Bhd', 'slug' => 'cycle-'.uniqid(), 'legal_form' => 'sdn_bhd',
         'sst_registration_no' => 'W10-1234-56789012',
     ]);
     ChartOfAccountsTemplate::seed($this->company);
@@ -151,5 +150,72 @@ it('general ledger running balance reaches the account balance', function () {
     $gl = $this->reports->generalLedger($this->company, $this->bank->refresh(), '2026-07-01', '2026-07-31');
 
     expect($gl['closing'])->toBe('3215.00')
+        ->and($gl['opening'])->toBe('0.00')
         ->and(count($gl['rows']))->toBe(3); // receipt, bill payment, bank fee
+});
+
+it('products and services report summarizes sales and purchase line activity', function () {
+    $customer = $this->company->parties()->create(['role' => 'customer', 'name' => 'Customer A']);
+    $vendor = $this->company->parties()->create(['role' => 'vendor', 'name' => 'Vendor B']);
+    $income = $this->company->accounts()->where('code', '4100')->first();
+    $expense = $this->company->accounts()->where('code', '6200')->first();
+    $item = $this->company->items()->create([
+        'name' => 'Implementation package',
+        'kind' => 'sales',
+        'unit_price' => '750.00',
+        'income_account_id' => $income->id,
+    ]);
+
+    $invoice = $this->company->invoices()->create([
+        'party_id' => $customer->id,
+        'invoice_number' => 'INV-00002',
+        'issue_date' => '2026-07-03',
+    ]);
+    $invoice->lines()->create([
+        'item_id' => $item->id,
+        'description' => 'Implementation package',
+        'quantity' => 2,
+        'unit_price' => 750,
+        'income_account_id' => $income->id,
+    ]);
+    app(InvoiceService::class)->approve($invoice->refresh());
+
+    $bill = $this->company->bills()->create([
+        'party_id' => $vendor->id,
+        'bill_number' => 'B-100',
+        'bill_date' => '2026-07-04',
+    ]);
+    $bill->lines()->create([
+        'item_id' => $item->id,
+        'description' => 'Implementation package',
+        'quantity' => 1,
+        'unit_price' => 250,
+        'expense_account_id' => $expense->id,
+    ]);
+    app(BillService::class)->approve($bill->refresh());
+
+    $report = $this->reports->productsAndServices($this->company, '2026-07-01', '2026-07-31');
+    $row = $report['rows']->first();
+
+    expect($row['label'])->toBe('Implementation package')
+        ->and($row['sales_quantity'])->toBe('2.00')
+        ->and($row['sales_amount'])->toBe('1500.00')
+        ->and($row['purchase_quantity'])->toBe('1.00')
+        ->and($row['purchase_amount'])->toBe('250.00')
+        ->and($row['net_amount'])->toBe('1250.00')
+        ->and($report['totals']['net_amount'])->toBe('1250.00')
+        ->and(count($row['details']))->toBe(2);
+});
+
+it('expenses report includes bills and categorized outgoing bank transactions', function () {
+    runFullCycle($this);
+
+    $report = $this->reports->expenses($this->company, '2026-07-01', '2026-07-31');
+    $vendorRow = $report['rows']->firstWhere('label', 'Vendor B');
+    $bankRow = $report['rows']->firstWhere('label', 'Unassigned vendor');
+
+    expect($report['totals']['amount'])->toBe('2185.00')
+        ->and($report['totals']['sources'])->toBe(2)
+        ->and($vendorRow['amount'])->toBe('2160.00')
+        ->and($bankRow['amount'])->toBe('25.00');
 });

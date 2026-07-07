@@ -1,9 +1,8 @@
 <x-filament-panels::page>
     <x-filament::section>
-        <div class="mb-4">
-            <label class="text-sm">As of <input type="date" wire:model.live="asOf" class="rounded border-gray-300 text-sm"></label>
-        </div>
+        @include('filament.pages.partials.report-toolbar', ['mode' => 'asof'])
         @php($r = $this->getReport())
+        @php($gl = fn ($account) => \App\Filament\Pages\GeneralLedger::getUrl(['account' => $account->id, 'from' => '1970-01-01', 'to' => $this->asOf]))
         <table class="w-full text-sm">
             <tbody>
             @foreach(['asset' => 'Assets', 'liability' => 'Liabilities', 'equity' => 'Equity'] as $type => $label)
@@ -12,7 +11,7 @@
                     <tr>
                         <td class="py-1 pl-4">
                             @if($row['account'] ?? null)
-                                {{ $row['account']->code }} · {{ $row['account']->name }}
+                                <a href="{{ $gl($row['account']) }}" class="hover:underline">{{ $row['account']->code }} · {{ $row['account']->name }}</a>
                             @else
                                 {{ $row['label'] }}
                             @endif
