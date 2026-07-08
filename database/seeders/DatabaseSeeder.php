@@ -24,10 +24,22 @@ class DatabaseSeeder extends Seeder
             ['name' => 'AgriTech Ops',         'slug' => 'agritech',     'legal_form' => 'sole_prop'],
         ];
 
+        // Only o2o-alliance is SST-registered; the other two sit under the RM1m threshold.
+        $sstRegistered = ['o2o-alliance' => 'W10-1234-56789012'];
+
         foreach ($companies as $data) {
             $company = Company::firstOrCreate(['slug' => $data['slug']], $data);
             $company->users()->syncWithoutDetaching($user);
             ChartOfAccountsTemplate::seed($company);
+
+            if (isset($sstRegistered[$data['slug']]) && ! $company->sst_registration_no) {
+                $company->update(['sst_registration_no' => $sstRegistered[$data['slug']]]);
+            }
+
+            // Guard so re-running db:seed doesn't duplicate transaction history.
+            if ($company->invoices()->count() === 0) {
+                (new TransactionSeeder)->run($company, $data['slug']);
+            }
         }
     }
 }
